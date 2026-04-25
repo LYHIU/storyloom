@@ -64,7 +64,10 @@
       "Bash(git *)",
       "Bash(npx vite *)",
       "Bash(env)",
-      "Bash(export PATH=\"/c/Users/19066/.cargo/bin:$PATH\")"
+      "Bash(export PATH=\"/c/Users/19066/.cargo/bin:$PATH\")",
+      "Bash(npx tsc *)",
+      "Bash([ -f \"/d/Code/$f\" ])",
+      "Bash(npx tauri *)"
     ]
   }
 }
