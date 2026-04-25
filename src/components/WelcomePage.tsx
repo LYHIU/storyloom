@@ -152,14 +152,17 @@ export function WelcomePage({ onProjectOpened }: WelcomePageProps) {
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center',
-      justifyContent: 'center', height: '100%', gap: 20,
+      justifyContent: 'center', height: '100%', gap: 12,
       background: 'var(--color-paper-white)',
     }}>
-      <div style={{ fontSize: 36, fontWeight: 600, color: 'var(--color-ink-green)', marginBottom: 4 }}>
-        竹林清风
+      <div style={{ fontSize: 42, fontWeight: 600, color: 'var(--color-ink-green)', letterSpacing: 4 }}>
+        书织
       </div>
-      <div style={{ fontSize: 15, color: 'var(--color-ink-muted)', marginBottom: 24 }}>
-        网文写作，从一片竹林开始
+      <div style={{ fontSize: 15, color: 'var(--color-ink-green)', marginTop: 8, letterSpacing: 1, opacity: 0.75 }}>
+        书织回文锦，墨通山海间
+      </div>
+      <div style={{ fontSize: 13, color: 'var(--color-ink-muted)', marginBottom: 20, maxWidth: 320, textAlign: 'center', lineHeight: 1.6 }}>
+        以字为经、以章为纬，陪你织起人物、情节与世界。当梭声停下，万象俱全。
       </div>
       <button
         onClick={() => setMode('create')}
