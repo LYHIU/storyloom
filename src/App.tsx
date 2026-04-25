@@ -4,6 +4,7 @@ import { WritingSpace } from './scenes/writing/WritingSpace';
 import { IdeationSpace } from './scenes/ideation/IdeationSpace';
 import { PolishingSpace } from './scenes/polishing/PolishingSpace';
 import { AnalyticsSpace } from './scenes/analytics/AnalyticsSpace';
+import { WelcomePage } from './components/WelcomePage';
 import { useProjectStore } from './stores/projectStore';
 import './App.css';
 
@@ -22,18 +23,9 @@ function App() {
 
   if (!project) {
     return (
-      <div style={{
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', height: '100vh', gap: 16,
-        background: 'var(--color-paper-white)',
-      }}>
-        <div style={{ fontSize: 36, fontWeight: 600, color: 'var(--color-ink-green)' }}>
-          竹林清风
-        </div>
-        <div style={{ fontSize: 14, color: 'var(--color-ink-muted)' }}>
-          请先在控制台打开项目（欢迎页即将上线）
-        </div>
-      </div>
+      <WelcomePage onProjectOpened={() => {
+        // Force re-render - project is now set in the store
+      }} />
     );
   }
 
