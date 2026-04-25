@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@theme {
+  /* 主色系 — 绿色基底 */
+  --color-bamboo-white: #f2f6f0;
+  --color-paper-white: #fafaf7;
+  --color-tea-beige: #f6f3ed;
+  --color-editor-paper: #fffef9;
+  --color-bamboo-green: #6b9b6b;
+  --color-bamboo-deep: #4a7c4a;
+  --color-ink-green: #3d4a3d;
+  --color-ink-muted: rgba(61, 74, 61, 0.6);
+
+  /* 撞色 */
+  --color-accent-orange: #f0a060;
+  --color-accent-purple: #b895b0;
+  --color-accent-yellow: #e8c560;
+  --color-accent-blue: #7db8c4;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bamboo-white);
+  color: var(--color-ink-green);
+  font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+}
