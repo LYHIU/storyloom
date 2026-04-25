@@ -3,14 +3,20 @@ import type { ProjectMeta, Chapter } from '../lib/tauri';
 import * as api from '../lib/tauri';
 
 interface ProjectState {
+  vaultPath: string | null;
+  vaultProjects: ProjectMeta[];
   project: ProjectMeta | null;
   chapters: Chapter[];
   activeChapter: Chapter | null;
   isLoading: boolean;
   error: string | null;
 
-  createProject: (name: string, directory: string) => Promise<void>;
+  setVaultPath: (path: string) => Promise<void>;
+  clearVaultPath: () => void;
+  scanVault: () => Promise<void>;
+  createProject: (name: string) => Promise<void>;
   openProject: (path: string) => Promise<void>;
+  closeProject: () => void;
   loadChapters: () => Promise<void>;
   setActiveChapter: (chapter: Chapter) => void;
   addChapter: (fileName: string, title: string) => Promise<string>;
@@ -20,17 +26,51 @@ interface ProjectState {
 }
 
 export const useProjectStore = create<ProjectState>((set, get) => ({
+  vaultPath: null,
+  vaultProjects: [],
   project: null,
   chapters: [],
   activeChapter: null,
   isLoading: false,
   error: null,
 
-  createProject: async (name, directory) => {
+  setVaultPath: async (path) => {
+    set({ vaultPath: path, isLoading: true, error: null });
+    localStorage.setItem('storyloom-vault-path', path);
+    try {
+      const projects = await api.scanVault(path);
+      set({ vaultProjects: projects, isLoading: false });
+    } catch (e) {
+      set({ error: String(e), isLoading: false });
+    }
+  },
+
+  clearVaultPath: () => {
+    localStorage.removeItem('storyloom-vault-path');
+    set({ vaultPath: null, vaultProjects: [], project: null, chapters: [], activeChapter: null });
+  },
+
+  scanVault: async () => {
+    const { vaultPath } = get();
+    if (!vaultPath) return;
+    try {
+      const projects = await api.scanVault(vaultPath);
+      set({ vaultProjects: projects });
+    } catch (e) {
+      set({ error: String(e) });
+    }
+  },
+
+  createProject: async (name) => {
+    const { vaultPath } = get();
+    if (!vaultPath) return;
     set({ isLoading: true, error: null });
     try {
-      const project = await api.createProject(name, directory);
+      const project = await api.createProject(name, vaultPath);
       set({ project, isLoading: false });
+      await get().loadChapters();
+      // Refresh vault list in background
+      get().scanVault();
     } catch (e) {
       set({ error: String(e), isLoading: false });
     }
@@ -45,6 +85,10 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     } catch (e) {
       set({ error: String(e), isLoading: false });
     }
+  },
+
+  closeProject: () => {
+    set({ project: null, chapters: [], activeChapter: null });
   },
 
   loadChapters: async () => {

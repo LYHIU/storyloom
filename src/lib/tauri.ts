@@ -47,3 +47,7 @@ export async function deleteChapter(filePath: string, projectPath: string): Prom
 export async function renameChapter(filePath: string, projectPath: string, newTitle: string): Promise<void> {
   return invoke('rename_chapter', { filePath, projectPath, newTitle });
 }
+
+export async function scanVault(vaultPath: string): Promise<ProjectMeta[]> {
+  return invoke('scan_vault', { vaultPath });
+}

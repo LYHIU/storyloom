@@ -76,7 +76,9 @@ pub fn rename_chapter(file_path: String, project_path: String, new_title: String
 
     fs::write(&file_path, &new_content).map_err(|e| e.to_string())?;
     Ok(())
-}(project_path: &str, file_name: &str) -> Result<(), String> {
+}
+
+fn update_chapter_order(project_path: &str, file_name: &str) -> Result<(), String> {
     let config_path = Path::new(project_path).join("project.json");
     let config_str = fs::read_to_string(&config_path).map_err(|e| e.to_string())?;
     let mut config: crate::models::ProjectConfig =
