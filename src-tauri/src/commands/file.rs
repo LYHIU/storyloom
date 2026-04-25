@@ -58,7 +58,25 @@ pub fn delete_chapter(file_path: String, project_path: String) -> Result<(), Str
     Ok(())
 }
 
-fn update_chapter_order(project_path: &str, file_name: &str) -> Result<(), String> {
+#[tauri::command]
+pub fn rename_chapter(file_path: String, project_path: String, new_title: String) -> Result<(), String> {
+    validate_path_in_project(&file_path, &project_path)?;
+
+    // 读取当前内容
+    let content = fs::read_to_string(&file_path).map_err(|e| e.to_string())?;
+
+    // 替换第一个 # 标题行
+    let new_content;
+    if content.starts_with("# ") {
+        let first_newline = content.find('\n').unwrap_or(content.len());
+        new_content = format!("# {}{}", new_title, &content[first_newline..]);
+    } else {
+        new_content = format!("# {}\n\n{}", new_title, content);
+    }
+
+    fs::write(&file_path, &new_content).map_err(|e| e.to_string())?;
+    Ok(())
+}(project_path: &str, file_name: &str) -> Result<(), String> {
     let config_path = Path::new(project_path).join("project.json");
     let config_str = fs::read_to_string(&config_path).map_err(|e| e.to_string())?;
     let mut config: crate::models::ProjectConfig =

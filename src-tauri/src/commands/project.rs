@@ -30,7 +30,7 @@ pub fn open_project(path: String) -> Result<ProjectMeta, String> {
     let project_dir = Path::new(&path);
     let config_path = project_dir.join("project.json");
     if !config_path.exists() {
-        return Err("不是有效的项目目录：缺少 project.json".into());
+        return Err("无法打开此目录：该目录不是书织项目（缺少 project.json）。\n请选择通过「新建作品」创建的项目目录，或进入包含 chapters/ 和 project.json 的文件夹。".into());
     }
     let name = project_dir
         .file_name()

@@ -43,3 +43,7 @@ export async function createChapter(projectPath: string, fileName: string, title
 export async function deleteChapter(filePath: string, projectPath: string): Promise<void> {
   return invoke('delete_chapter', { filePath, projectPath });
 }
+
+export async function renameChapter(filePath: string, projectPath: string, newTitle: string): Promise<void> {
+  return invoke('rename_chapter', { filePath, projectPath, newTitle });
+}

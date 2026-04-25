@@ -8,9 +8,11 @@ interface OutlineSidebarProps {
 }
 
 export function OutlineSidebar({ collapsed, onToggle }: OutlineSidebarProps) {
-  const { chapters, activeChapter, setActiveChapter, addChapter, removeChapter } = useProjectStore();
+  const { chapters, activeChapter, setActiveChapter, addChapter, removeChapter, renameChapter } = useProjectStore();
   const [newTitle, setNewTitle] = useState('');
   const [showAdd, setShowAdd] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
 
   if (collapsed) {
     return (
@@ -44,6 +46,26 @@ export function OutlineSidebar({ collapsed, onToggle }: OutlineSidebarProps) {
     if (window.confirm(`确定删除章节「${chapter.title}」？`)) {
       await removeChapter(chapter);
     }
+  };
+
+  const handleStartRename = (chapter: Chapter) => {
+    setEditingId(chapter.id);
+    setEditTitle(chapter.title);
+  };
+
+  const handleRename = async () => {
+    if (!editingId || !editTitle.trim()) return;
+    const chapter = chapters.find(c => c.id === editingId);
+    if (chapter) {
+      await renameChapter(chapter, editTitle.trim());
+    }
+    setEditingId(null);
+    setEditTitle('');
+  };
+
+  const handleRenameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleRename();
+    if (e.key === 'Escape') setEditingId(null);
   };
 
   return (
@@ -133,29 +155,65 @@ export function OutlineSidebar({ collapsed, onToggle }: OutlineSidebarProps) {
               }}
             >
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  fontSize: 13, fontWeight: 500, color: 'var(--color-ink-green)',
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                }}>
-                  {ch.title}
-                </div>
-                <div style={{ fontSize: 11, color: 'var(--color-ink-muted)', marginTop: 2 }}>
-                  {ch.word_count} 字
-                </div>
+                {editingId === ch.id ? (
+                  <input
+                    type="text"
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    onKeyDown={handleRenameKeyDown}
+                    onBlur={handleRename}
+                    autoFocus
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      width: '100%', boxSizing: 'border-box',
+                      padding: '4px 6px', fontSize: 13,
+                      border: '1px solid var(--color-bamboo-green)', borderRadius: 4,
+                      background: '#fff', outline: 'none',
+                      fontFamily: 'inherit', color: 'var(--color-ink-green)',
+                    }}
+                  />
+                ) : (
+                  <>
+                    <div style={{
+                      fontSize: 13, fontWeight: 500, color: 'var(--color-ink-green)',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}>
+                      {ch.title}
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--color-ink-muted)', marginTop: 2 }}>
+                      {ch.word_count} 字
+                    </div>
+                  </>
+                )}
               </div>
-              <button
-                onClick={(e) => { e.stopPropagation(); handleDelete(ch); }}
-                style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  color: 'var(--color-ink-muted)', fontSize: 14, padding: '0 4px',
-                  opacity: 0.5, transition: 'opacity 0.2s',
-                }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.5'; }}
-                title="删除章节"
-              >
-                ×
-              </button>
+              <div style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleStartRename(ch); }}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: 'var(--color-bamboo-green)', fontSize: 12, padding: '0 4px',
+                    opacity: 0, transition: 'opacity 0.2s', fontFamily: 'inherit',
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0'; }}
+                  title="重命名"
+                >
+                  ✎
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDelete(ch); }}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: 'var(--color-ink-muted)', fontSize: 14, padding: '0 4px',
+                    opacity: 0.5, transition: 'opacity 0.2s',
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.5'; }}
+                  title="删除章节"
+                >
+                  ×
+                </button>
+              </div>
             </div>
           ))
         )}

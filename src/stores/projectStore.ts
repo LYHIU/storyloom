@@ -15,6 +15,7 @@ interface ProjectState {
   setActiveChapter: (chapter: Chapter) => void;
   addChapter: (fileName: string, title: string) => Promise<string>;
   removeChapter: (chapter: Chapter) => Promise<void>;
+  renameChapter: (chapter: Chapter, newTitle: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -74,6 +75,13 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     const { project } = get();
     if (!project) return;
     await api.deleteChapter(chapter.file_path, project.directory);
+    await get().loadChapters();
+  },
+
+  renameChapter: async (chapter, newTitle) => {
+    const { project } = get();
+    if (!project) return;
+    await api.renameChapter(chapter.file_path, project.directory, newTitle);
     await get().loadChapters();
   },
 

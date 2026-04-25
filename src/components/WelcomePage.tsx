@@ -1,5 +1,6 @@
 import { useProjectStore } from '../stores/projectStore';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { open } from '@tauri-apps/plugin-dialog';
 
 interface WelcomePageProps {
   onProjectOpened: () => void;
@@ -11,16 +12,55 @@ export function WelcomePage({ onProjectOpened }: WelcomePageProps) {
   const [name, setName] = useState('');
   const [directory, setDirectory] = useState('');
   const [openPath, setOpenPath] = useState('');
+  const [recentProjects, setRecentProjects] = useState<string[]>([]);
+
+  const RECENT_KEY = 'storyloom-recent-projects';
+
+  useEffect(() => {
+    const stored = localStorage.getItem(RECENT_KEY);
+    if (stored) {
+      try { setRecentProjects(JSON.parse(stored)); } catch { /* ignore */ }
+    }
+  }, []);
+
+  const saveRecent = (path: string) => {
+    const updated = [path, ...recentProjects.filter(p => p !== path)].slice(0, 10);
+    setRecentProjects(updated);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(updated));
+  };
+
+  const pickDirectory = async () => {
+    const selected = await open({ directory: true, multiple: false, title: '选择目录' });
+    if (selected) {
+      setDirectory(selected as string);
+    }
+  };
+
+  const pickOpenPath = async () => {
+    const selected = await open({ directory: true, multiple: false, title: '选择项目目录' });
+    if (selected) {
+      setOpenPath(selected as string);
+    }
+  };
 
   const handleCreate = async () => {
     if (!name.trim() || !directory.trim()) return;
     await createProject(name.trim(), directory.trim());
+    saveRecent(`${directory.trim()}\\${name.trim()}`);
     onProjectOpened();
   };
 
   const handleOpen = async () => {
     if (!openPath.trim()) return;
     await openProject(openPath.trim());
+    saveRecent(openPath.trim());
+    onProjectOpened();
+  };
+
+  const handleRecentOpen = async (path: string) => {
+    setOpenPath(path);
+    await openProject(path);
+    saveRecent(path);
     onProjectOpened();
   };
 
@@ -47,16 +87,28 @@ export function WelcomePage({ onProjectOpened }: WelcomePageProps) {
         />
 
         <div style={{ width: 300, boxSizing: 'border-box' }}>
-          <input
-            type="text" value={directory} onChange={(e) => setDirectory(e.target.value)}
-            placeholder="存储目录路径 (如 D:\Novels)"
-            style={{
-              width: '100%', padding: '10px 16px', fontSize: 15, boxSizing: 'border-box',
-              border: '1px solid var(--color-bamboo-green)', borderRadius: 8,
-              outline: 'none', fontFamily: 'inherit', color: 'var(--color-ink-green)',
-              background: '#fff',
-            }}
-          />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              type="text" value={directory} onChange={(e) => setDirectory(e.target.value)}
+              placeholder="存储目录路径 (如 D:\Novels)"
+              style={{
+                flex: 1, padding: '10px 16px', fontSize: 15, boxSizing: 'border-box',
+                border: '1px solid var(--color-bamboo-green)', borderRadius: 8,
+                outline: 'none', fontFamily: 'inherit', color: 'var(--color-ink-green)',
+                background: '#fff',
+              }}
+            />
+            <button
+              onClick={pickDirectory}
+              style={{
+                padding: '10px 16px', fontSize: 14, cursor: 'pointer',
+                background: 'var(--color-bamboo-green)', color: '#fff',
+                border: 'none', borderRadius: 8, fontFamily: 'inherit', whiteSpace: 'nowrap',
+              }}
+            >
+              浏览
+            </button>
+          </div>
         </div>
 
         {error && (
@@ -104,16 +156,30 @@ export function WelcomePage({ onProjectOpened }: WelcomePageProps) {
         <div style={{ fontSize: 28, fontWeight: 600, color: 'var(--color-ink-green)', marginBottom: 8 }}>
           打开作品
         </div>
-        <input
-          type="text" value={openPath} onChange={(e) => setOpenPath(e.target.value)}
-          placeholder="项目目录路径 (如 D:\Novels\MyBook)"
-          style={{
-            width: 300, padding: '10px 16px', fontSize: 15,
-            border: '1px solid var(--color-bamboo-green)', borderRadius: 8,
-            outline: 'none', fontFamily: 'inherit', color: 'var(--color-ink-green)',
-            background: '#fff', boxSizing: 'border-box',
-          }}
-        />
+        <div style={{ width: 300, boxSizing: 'border-box' }}>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              type="text" value={openPath} onChange={(e) => setOpenPath(e.target.value)}
+              placeholder="项目目录路径 (如 D:\Novels\MyBook)"
+              style={{
+                flex: 1, padding: '10px 16px', fontSize: 15,
+                border: '1px solid var(--color-bamboo-green)', borderRadius: 8,
+                outline: 'none', fontFamily: 'inherit', color: 'var(--color-ink-green)',
+                background: '#fff', boxSizing: 'border-box',
+              }}
+            />
+            <button
+              onClick={pickOpenPath}
+              style={{
+                padding: '10px 16px', fontSize: 14, cursor: 'pointer',
+                background: 'var(--color-bamboo-green)', color: '#fff',
+                border: 'none', borderRadius: 8, fontFamily: 'inherit',
+              }}
+            >
+              浏览
+            </button>
+          </div>
+        </div>
         {error && (
           <div style={{ color: '#d32f2f', fontSize: 13, maxWidth: 300, textAlign: 'center' }}>
             {error}
@@ -188,6 +254,51 @@ export function WelcomePage({ onProjectOpened }: WelcomePageProps) {
       >
         打开作品
       </button>
+
+      {recentProjects.length > 0 && (
+        <div style={{ width: 240, marginTop: 24 }}>
+          <div style={{ fontSize: 12, color: 'var(--color-ink-muted)', marginBottom: 8, fontWeight: 500 }}>
+            最近作品
+          </div>
+          {recentProjects.map((path) => {
+            const parts = path.replace(/\\/g, '/').split('/');
+            const projectName = parts[parts.length - 1] || parts[parts.length - 2] || path;
+            return (
+              <div
+                key={path}
+                onClick={() => handleRecentOpen(path)}
+                style={{
+                  padding: '8px 12px', cursor: 'pointer', borderRadius: 8,
+                  fontSize: 13, color: 'var(--color-ink-green)',
+                  transition: 'background 0.15s', marginBottom: 2,
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(107, 155, 107, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background = 'transparent';
+                }}
+              >
+                <span style={{ fontWeight: 500 }}>{projectName}</span>
+                <span style={{ color: 'var(--color-ink-muted)', marginLeft: 8, fontSize: 11 }}>
+                  {path}
+                </span>
+              </div>
+            );
+          })}
+          <button
+            onClick={() => { setRecentProjects([]); localStorage.removeItem(RECENT_KEY); }}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontSize: 11, color: 'var(--color-ink-muted)', padding: '4px 12px', marginTop: 4,
+              fontFamily: 'inherit', textDecoration: 'underline',
+            }}
+          >
+            清空记录
+          </button>
+        </div>
+      )}
     </div>
   );
 }
