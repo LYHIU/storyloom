@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { OutlineSidebar } from './components/OutlineSidebar';
+import { Editor } from './components/Editor';
 
 export function WritingSpace() {
-  const [_sidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
     <div
@@ -11,27 +13,13 @@ export function WritingSpace() {
         height: '100%',
       }}
     >
-      {/* 主内容区 - placeholder for outline sidebar + editor */}
+      {/* 主内容区 */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        <div style={{
-          width: 240, flexShrink: 0,
-          background: 'var(--color-tea-beige)',
-          borderRight: '1px solid var(--color-bamboo-white)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 13, color: 'var(--color-ink-muted)',
-        }}>
-          大纲侧栏 — 即将上线
-        </div>
-        <div style={{
-          flex: 1,
-          background: 'var(--color-editor-paper)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 14, color: 'var(--color-ink-muted)',
-          flexDirection: 'column', gap: 8,
-        }}>
-          <div style={{ fontSize: 40, opacity: 0.2 }}>✍</div>
-          <div>编辑器 — 即将上线</div>
-        </div>
+        <OutlineSidebar
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
+        <Editor />
       </div>
 
       {/* 底部状态栏占位 */}
