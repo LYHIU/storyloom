@@ -1,13 +1,19 @@
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 #[tauri::command]
 pub fn read_chapter(file_path: String) -> Result<String, String> {
+    if !file_path.ends_with(".md") {
+        return Err("只允许读取 .md 文件".into());
+    }
     fs::read_to_string(&file_path).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
 pub fn write_chapter(file_path: String, content: String) -> Result<(), String> {
+    if !file_path.ends_with(".md") {
+        return Err("只允许写入 .md 文件".into());
+    }
     if let Some(parent) = Path::new(&file_path).parent() {
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
@@ -16,6 +22,9 @@ pub fn write_chapter(file_path: String, content: String) -> Result<(), String> {
 
 #[tauri::command]
 pub fn create_chapter(project_path: String, file_name: String, title: String) -> Result<String, String> {
+    if file_name.contains('/') || file_name.contains('\\') || file_name.contains("..") || file_name.contains('\0') {
+        return Err("Invalid file name".into());
+    }
     let chapters_dir = Path::new(&project_path).join("chapters");
     let file_path = chapters_dir.join(format!("{}.md", file_name));
     if file_path.exists() {
@@ -27,8 +36,18 @@ pub fn create_chapter(project_path: String, file_name: String, title: String) ->
     Ok(file_path.to_string_lossy().into())
 }
 
+fn validate_path_in_project(file_path: &str, project_path: &str) -> Result<PathBuf, String> {
+    let file = std::fs::canonicalize(file_path).map_err(|e| format!("无效文件路径: {}", e))?;
+    let project = std::fs::canonicalize(project_path).map_err(|e| format!("无效项目路径: {}", e))?;
+    if !file.starts_with(&project) {
+        return Err("文件路径不在项目目录内".into());
+    }
+    Ok(file)
+}
+
 #[tauri::command]
 pub fn delete_chapter(file_path: String, project_path: String) -> Result<(), String> {
+    validate_path_in_project(&file_path, &project_path)?;
     fs::remove_file(&file_path).map_err(|e| e.to_string())?;
     let file_name = Path::new(&file_path)
         .file_stem()

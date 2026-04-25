@@ -57,7 +57,13 @@ pub fn list_chapters(project_path: String) -> Result<Vec<Chapter>, String> {
         for (i, file_name) in config.chapter_order.iter().enumerate() {
             let file_path = chapters_dir.join(format!("{}.md", file_name));
             if file_path.exists() {
-                let content = fs::read_to_string(&file_path).unwrap_or_default();
+                let content = match fs::read_to_string(&file_path) {
+                    Ok(c) => c,
+                    Err(e) => {
+                        eprintln!("警告: 无法读取章节文件 {}: {}", file_path.display(), e);
+                        continue;
+                    }
+                };
                 let word_count = count_chinese_chars(&content);
                 let title = extract_title(&content).unwrap_or_else(|| file_name.clone());
                 chapters.push(Chapter {
