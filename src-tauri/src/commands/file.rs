@@ -1,0 +1,62 @@
+use std::fs;
+use std::path::Path;
+
+#[tauri::command]
+pub fn read_chapter(file_path: String) -> Result<String, String> {
+    fs::read_to_string(&file_path).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn write_chapter(file_path: String, content: String) -> Result<(), String> {
+    if let Some(parent) = Path::new(&file_path).parent() {
+        fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+    }
+    fs::write(&file_path, &content).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn create_chapter(project_path: String, file_name: String, title: String) -> Result<String, String> {
+    let chapters_dir = Path::new(&project_path).join("chapters");
+    let file_path = chapters_dir.join(format!("{}.md", file_name));
+    if file_path.exists() {
+        return Err("章节文件已存在".into());
+    }
+    let content = format!("# {}\n\n", title);
+    fs::write(&file_path, &content).map_err(|e| e.to_string())?;
+    update_chapter_order(&project_path, &file_name)?;
+    Ok(file_path.to_string_lossy().into())
+}
+
+#[tauri::command]
+pub fn delete_chapter(file_path: String, project_path: String) -> Result<(), String> {
+    fs::remove_file(&file_path).map_err(|e| e.to_string())?;
+    let file_name = Path::new(&file_path)
+        .file_stem()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .to_string();
+    remove_from_chapter_order(&project_path, &file_name)?;
+    Ok(())
+}
+
+fn update_chapter_order(project_path: &str, file_name: &str) -> Result<(), String> {
+    let config_path = Path::new(project_path).join("project.json");
+    let config_str = fs::read_to_string(&config_path).map_err(|e| e.to_string())?;
+    let mut config: crate::models::ProjectConfig =
+        serde_json::from_str(&config_str).map_err(|e| e.to_string())?;
+    if !config.chapter_order.contains(&file_name.to_string()) {
+        config.chapter_order.push(file_name.to_string());
+    }
+    fs::write(&config_path, serde_json::to_string_pretty(&config).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())
+}
+
+fn remove_from_chapter_order(project_path: &str, file_name: &str) -> Result<(), String> {
+    let config_path = Path::new(project_path).join("project.json");
+    let config_str = fs::read_to_string(&config_path).map_err(|e| e.to_string())?;
+    let mut config: crate::models::ProjectConfig =
+        serde_json::from_str(&config_str).map_err(|e| e.to_string())?;
+    config.chapter_order.retain(|f| f != file_name);
+    fs::write(&config_path, serde_json::to_string_pretty(&config).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())
+}
