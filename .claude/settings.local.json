@@ -62,7 +62,9 @@
       "Bash(git commit -m ' *)",
       "Bash(git config *)",
       "Bash(git *)",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "Bash(env)",
+      "Bash(export PATH=\"/c/Users/19066/.cargo/bin:$PATH\")"
     ]
   }
 }
