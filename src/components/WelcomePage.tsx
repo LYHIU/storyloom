@@ -158,8 +158,9 @@ export function WelcomePage({ onProjectOpened }: WelcomePageProps) {
       <div style={{ fontSize: 42, fontWeight: 600, color: 'var(--color-ink-green)', letterSpacing: 4 }}>
         书织
       </div>
-      <div style={{ fontSize: 15, color: 'var(--color-ink-green)', marginTop: 8, letterSpacing: 1, opacity: 0.75 }}>
-        书织回文锦，墨通山海间
+      <div style={{ fontSize: 15, color: 'var(--color-ink-green)', marginTop: 8, letterSpacing: 1, opacity: 0.75, textAlign: 'center', lineHeight: 2 }}>
+        书织回文锦，无因寄陇头。<br />
+        墨通山海间，梭停万象全。
       </div>
       <div style={{ fontSize: 13, color: 'var(--color-ink-muted)', marginBottom: 20, maxWidth: 320, textAlign: 'center', lineHeight: 1.6 }}>
         以字为经、以章为纬，陪你织起人物、情节与世界。当梭声停下，万象俱全。
