@@ -95,17 +95,19 @@ export function NameWorkshop() {
         .map((l) => l.trim())
         .map((l) => l.replace(/^[\d]+[\.\、\)\s]+/, '').trim())
         .filter((l) => l.length > 0 && l.length <= 20 && !/^[\(（\-—]/.test(l));
-      if (genIdRef.current !== myId) return; // newer request started
+      if (genIdRef.current !== myId) { console.log('[NameWorkshop] stale genId, discarding'); return; }
+      console.log('[NameWorkshop] parsed names:', names.length, names);
       if (names.length === 0) {
         setError('AI 返回了内容但未能解析出名字，请重试。\n原始返回: ' + reply.slice(0, 300));
       } else {
         setResults(names.slice(0, count));
       }
     } catch (e) {
-      if (genIdRef.current !== myId) return;
+      if (genIdRef.current !== myId) { console.log('[NameWorkshop] stale genId in catch, discarding'); return; }
       setError('请求失败: ' + String(e));
     }
     setLoading(false);
+    console.log('[NameWorkshop] generate done');
   };
 
   const stopGenerate = () => {
