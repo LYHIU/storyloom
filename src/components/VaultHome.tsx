@@ -8,22 +8,22 @@ interface VaultHomeProps {
   onProjectOpened: () => void;
 }
 
-const BOOK_MACARON: [string, string][] = [
-  ['linear-gradient(160deg, #ecd5d5, #d4b8b8)', 'linear-gradient(145deg, #f2c9ca, #e8b0b2)'],
-  ['linear-gradient(160deg, #c0d8cc, #a4c0b0)', 'linear-gradient(145deg, #c8e0d0, #aed4b8)'],
-  ['linear-gradient(160deg, #c0d4e8, #a4bcd8)', 'linear-gradient(145deg, #c8daf0, #aec4e8)'],
-  ['linear-gradient(160deg, #cec4dc, #b8accc)', 'linear-gradient(145deg, #d6cce8, #c4b8dc)'],
-  ['linear-gradient(160deg, #ecd4c8, #d4b8a8)', 'linear-gradient(145deg, #f2d8c8, #e8c4b0)'],
-  ['linear-gradient(160deg, #e8e0c0, #d8ccac)', 'linear-gradient(145deg, #f0e8c4, #e8dcb0)'],
-  ['linear-gradient(160deg, #c0dce8, #acccd8)', 'linear-gradient(145deg, #c8e2f0, #aed2e8)'],
-  ['linear-gradient(160deg, #e8c8d4, #d4b0c0)', 'linear-gradient(145deg, #f0cdd8, #e8b8c6)'],
-  ['linear-gradient(160deg, #d4e0c4, #c0ceac)', 'linear-gradient(145deg, #dce6c8, #ccd8b0)'],
-  ['linear-gradient(160deg, #ecccc8, #d4b8b0)', 'linear-gradient(145deg, #f2d0c8, #e8bcb0)'],
+const MACARON = [
+  'linear-gradient(160deg, #ecccd0, #d8acb2)',
+  'linear-gradient(160deg, #c0d8cc, #a4c0b0)',
+  'linear-gradient(160deg, #c0d4e8, #a4bcd8)',
+  'linear-gradient(160deg, #cec4dc, #b8accc)',
+  'linear-gradient(160deg, #ecd4c8, #d4b8a8)',
+  'linear-gradient(160deg, #e4dcc0, #d4c8a8)',
+  'linear-gradient(160deg, #c0dce8, #acccd8)',
+  'linear-gradient(160deg, #e8c8d4, #d4b0c0)',
+  'linear-gradient(160deg, #d4e0c4, #c0ceac)',
+  'linear-gradient(160deg, #ecccc8, #d4b8b0)',
 ];
 
-function bookColors(name: string): [string, string] {
-  const idx = (name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 7) % BOOK_MACARON.length;
-  return BOOK_MACARON[idx];
+function bgColor(name: string): string {
+  const idx = (name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 7) % MACARON.length;
+  return MACARON[idx];
 }
 
 function NovelCard({ project, onOpen, onDelete }: {
@@ -36,7 +36,6 @@ function NovelCard({ project, onOpen, onDelete }: {
   const [hovered, setHovered] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [editValue, setEditValue] = useState(name);
-  const [coverBg, insetBg] = bookColors(name);
 
   useEffect(() => {
     api.readCover(project.directory).then(setCoverUrl).catch(() => setCoverUrl(null));
@@ -71,138 +70,93 @@ function NovelCard({ project, onOpen, onDelete }: {
   return (
     <div
       onClick={onOpen}
-      style={{
-        cursor: 'pointer', position: 'relative',
-        transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-      }}
-      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-5px)'; setHovered(true); }}
+      style={{ cursor: 'pointer', transition: 'all 0.25s' }}
+      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; setHovered(true); }}
       onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; setHovered(false); }}
     >
-      {/* Book */}
       <div style={{
-        position: 'relative',
-        borderRadius: '3px 8px 8px 3px',
+        borderRadius: 10,
         overflow: 'hidden',
-        boxShadow: '0 6px 20px rgba(61,74,61,0.12), 0 2px 4px rgba(0,0,0,0.06)',
-        aspectRatio: '3/4',
+        boxShadow: '0 4px 14px rgba(61,74,61,0.1), 0 1px 3px rgba(0,0,0,0.05)',
         display: 'flex', flexDirection: 'column',
+        transition: 'box-shadow 0.25s',
       }}>
-        {/* Spine */}
+        {/* Cover */}
         <div style={{
-          position: 'absolute', left: 0, top: 0, bottom: 0, width: 5, zIndex: 2,
-          background: 'linear-gradient(90deg, rgba(0,0,0,0.12), rgba(0,0,0,0.02))',
-          borderRadius: '3px 0 0 3px',
-        }} />
-
-        {/* Delete button */}
-        <button
-          onClick={handleDelete}
-          title={delConfirm ? '再点确认删除' : '删除作品'}
-          style={{
-            position: 'absolute', top: 4, right: 4, zIndex: 4,
-            width: 20, height: 20, borderRadius: '50%',
-            border: 'none', cursor: 'pointer',
-            background: delConfirm ? 'rgba(211,47,47,0.85)' : 'transparent',
-            color: delConfirm ? '#fff' : 'rgba(255,255,255,0.5)',
-            fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontFamily: 'inherit',
-            opacity: hovered || delConfirm ? 1 : 0, transition: 'all 0.2s',
-          }}
-        >
-          {delConfirm ? '?' : '✕'}
-        </button>
-
-        {/* Book cover */}
-        <div style={{
-          flex: 1,
-          position: 'relative',
-          background: coverUrl ? '#888' : coverBg,
+          aspectRatio: '2/3',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: 14,
+          position: 'relative',
+          background: coverUrl ? '#888' : bgColor(name),
         }}>
           {coverUrl ? (
             <img src={coverUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : null}
-
-          {/* Gloss overlay */}
           <div style={{
             position: 'absolute', inset: 0, pointerEvents: 'none',
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 35%, rgba(0,0,0,0.06) 100%)',
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 40%, rgba(0,0,0,0.05) 100%)',
           }} />
 
-          {/* Inset color card */}
+          {/* Delete */}
+          <button
+            onClick={handleDelete}
+            title={delConfirm ? '再点确认删除' : '删除作品'}
+            style={{
+              position: 'absolute', top: 5, right: 5, zIndex: 3,
+              width: 18, height: 18, borderRadius: '50%',
+              border: 'none', cursor: 'pointer',
+              background: delConfirm ? 'rgba(211,47,47,0.85)' : 'transparent',
+              color: delConfirm ? '#fff' : 'rgba(255,255,255,0.45)',
+              fontSize: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: 'inherit',
+              opacity: hovered || delConfirm ? 1 : 0, transition: 'all 0.2s',
+            }}
+          >
+            {delConfirm ? '?' : '✕'}
+          </button>
+
+          {/* Seal */}
           <div style={{
-            width: '72%', aspectRatio: '3/4',
-            borderRadius: 3,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            background: insetBg,
+            width: 44, height: 44, borderRadius: '50%',
+            border: '1.2px solid rgba(255,255,255,0.35)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.06)',
             position: 'relative', zIndex: 1,
           }}>
-            <div style={{
-              position: 'absolute', inset: 0, borderRadius: 3, pointerEvents: 'none',
-              boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.15)',
-            }} />
-
-            {/* Seal */}
-            <div style={{
-              width: 40, height: 40, borderRadius: '50%',
-              border: '1.2px solid rgba(255,255,255,0.35)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.06)',
+            <span style={{
+              fontSize: 24, fontWeight: 400, color: 'rgba(255,255,255,0.82)',
+              textShadow: '0 -1px 0 rgba(255,255,255,0.3), 0 2px 3px rgba(0,0,0,0.08)',
+              lineHeight: 1,
             }}>
-              <span style={{
-                fontSize: 22, fontWeight: 400, color: 'rgba(255,255,255,0.82)',
-                textShadow: '0 -1px 0 rgba(255,255,255,0.3), 0 2px 3px rgba(0,0,0,0.08)',
-                lineHeight: 1,
-              }}>
-                {initial}
-              </span>
-            </div>
-
-            {/* Upload button */}
-            <button
-              onClick={handleUploadCover}
-              title="上传封面"
-              style={{
-                position: 'absolute', bottom: 5, right: 5,
-                width: 24, height: 24, borderRadius: '50%',
-                background: 'rgba(0,0,0,0.3)', border: 'none',
-                cursor: 'pointer', color: '#fff', fontSize: 11,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                opacity: hovered ? 1 : 0, transition: 'opacity 0.2s',
-              }}
-            >
-              📷
-            </button>
+              {initial}
+            </span>
           </div>
-        </div>
 
-        {/* Page block */}
-        <div style={{
-          height: 8, position: 'relative', zIndex: 1,
-          background: 'linear-gradient(180deg, #f0ebe0, #e8e0d0 40%, #dbd2c0)',
-          borderTop: '1px solid rgba(0,0,0,0.06)',
-        }}>
-          <div style={{
-            position: 'absolute', top: -3, left: 0, right: 0, height: 1,
-            background: 'rgba(0,0,0,0.04)',
-            boxShadow: '0 2px 0 rgba(0,0,0,0.03)',
-          }} />
+          {/* Upload */}
+          <button
+            onClick={handleUploadCover}
+            title="上传封面"
+            style={{
+              position: 'absolute', bottom: 8, right: 8, zIndex: 3,
+              width: 24, height: 24, borderRadius: '50%',
+              background: 'rgba(0,0,0,0.25)', border: 'none',
+              cursor: 'pointer', color: '#fff', fontSize: 11,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              opacity: hovered ? 1 : 0, transition: 'opacity 0.2s',
+            }}
+          >
+            📷
+          </button>
         </div>
 
         {/* Title */}
-        <div style={{
-          position: 'relative', zIndex: 3,
-          padding: '10px 8px 8px', textAlign: 'center', background: '#fff',
-        }}>
+        <div style={{ padding: '14px 10px 14px', textAlign: 'center', background: '#fff' }}>
           {editingName ? (
             <input type="text" value={editValue}
               onChange={(e) => setEditValue(e.target.value)}
               onKeyDown={handleRenameKey} onBlur={handleRenameBlur}
               autoFocus onClick={(e) => e.stopPropagation()}
               style={{
-                width: '90%', padding: '2px 6px', fontSize: 12,
+                width: '90%', padding: '3px 6px', fontSize: 12,
                 border: '1px solid var(--color-bamboo-green)', borderRadius: 4,
                 outline: 'none', fontFamily: 'inherit', color: 'var(--color-ink-green)',
                 background: '#fff',
@@ -217,6 +171,12 @@ function NovelCard({ project, onOpen, onDelete }: {
               {name}
             </span>
           )}
+          <div style={{
+            fontSize: 10, color: 'rgba(61,74,61,0.35)', marginTop: 3,
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
+            {project.directory.replace(/\\/g, '/')}
+          </div>
         </div>
       </div>
     </div>
@@ -225,15 +185,10 @@ function NovelCard({ project, onOpen, onDelete }: {
 
 type SortMode = 'name' | 'created' | 'manual';
 
-function getOrderKey(vaultPath: string) {
-  return `storyloom-order-${vaultPath}`;
-}
+function getOrderKey(vaultPath: string) { return `storyloom-order-${vaultPath}`; }
 
 function loadManualOrder(vaultPath: string): string[] {
-  try {
-    const raw = localStorage.getItem(getOrderKey(vaultPath));
-    return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
+  try { const raw = localStorage.getItem(getOrderKey(vaultPath)); return raw ? JSON.parse(raw) : []; } catch { return []; }
 }
 
 function saveManualOrder(vaultPath: string, order: string[]) {
@@ -282,11 +237,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
     return [...ordered, ...rest];
   })();
 
-  const handleDragStart = (e: React.DragEvent, dir: string) => {
-    if (sortMode !== 'manual') return;
-    setDragItem(dir);
-    e.dataTransfer.effectAllowed = 'move';
-  };
+  const handleDragStart = (e: React.DragEvent, dir: string) => { if (sortMode !== 'manual') return; setDragItem(dir); e.dataTransfer.effectAllowed = 'move'; };
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
   const handleDrop = (e: React.DragEvent, targetDir: string) => {
     e.preventDefault();
@@ -301,24 +252,16 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
     setDragItem(null);
   };
 
-  const vaultDisplayName = vaultPath
-    ? vaultPath.replace(/\\/g, '/').split('/').filter(Boolean).pop() || vaultPath : '';
+  const vaultDisplayName = vaultPath ? vaultPath.replace(/\\/g, '/').split('/').filter(Boolean).pop() || vaultPath : '';
 
   return (
     <div style={{
       display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', position: 'relative',
       background: 'linear-gradient(170deg, #faf8f4 0%, #f2efe8 30%, #e8e4db 60%, #dfdbd1 100%)',
     }}>
-      <div style={{
-        position: 'absolute', inset: 0, opacity: 0.025, pointerEvents: 'none',
-        backgroundImage: `radial-gradient(circle, #6b9b6b 1px, transparent 1px)`,
-        backgroundSize: '28px 28px',
-      }} />
+      <div style={{ position: 'absolute', inset: 0, opacity: 0.025, pointerEvents: 'none', backgroundImage: `radial-gradient(circle, #6b9b6b 1px, transparent 1px)`, backgroundSize: '28px 28px' }} />
 
-      <header style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '24px 40px', flexShrink: 0, position: 'relative', zIndex: 1,
-      }}>
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 40px', flexShrink: 0, position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 18 }}>
           <span style={{ fontSize: 20, fontWeight: 300, letterSpacing: 8, color: 'var(--color-ink-muted)' }}>书织</span>
           <div style={{ width: 1, height: 18, background: 'var(--color-bamboo-green)', opacity: 0.25, alignSelf: 'center' }} />
@@ -333,9 +276,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <select value={sortMode} onChange={(e) => setSortMode(e.target.value as SortMode)}
             style={{ padding: '6px 10px', fontSize: 12, cursor: 'pointer', border: '1px solid rgba(107,155,107,0.2)', borderRadius: 980, background: 'rgba(255,255,255,0.4)', color: 'var(--color-ink-muted)', fontFamily: 'inherit', outline: 'none' }}>
-            <option value="name">按名称</option>
-            <option value="created">按时间</option>
-            <option value="manual">手动排序</option>
+            <option value="name">按名称</option><option value="created">按时间</option><option value="manual">手动排序</option>
           </select>
           <button onClick={() => { if (window.confirm('返回首页将清除书库路径，确定？')) clearVaultPath(); }}
             style={{ padding: '8px 16px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', border: '1px solid rgba(211,47,47,0.15)', borderRadius: 980, background: 'rgba(255,255,255,0.4)', color: 'var(--color-ink-muted)', boxShadow: '0 1px 3px rgba(61,74,61,0.04)', transition: 'all 0.2s' }}
@@ -357,8 +298,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
       <div style={{ flex: 1, overflow: 'auto', padding: '36px 40px 48px', position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column' }}>
         {error && (
           <div style={{ padding: '10px 16px', borderRadius: 8, marginBottom: 20, background: 'rgba(211,47,47,0.07)', color: '#d32f2f', fontSize: 13, display: 'flex', alignItems: 'center', gap: 12 }}>
-            {error}
-            <button onClick={clearError} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#d32f2f', fontSize: 13, fontFamily: 'inherit', textDecoration: 'underline' }}>关闭</button>
+            {error}<button onClick={clearError} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#d32f2f', fontSize: 13, fontFamily: 'inherit', textDecoration: 'underline' }}>关闭</button>
           </div>
         )}
 
@@ -397,50 +337,35 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
         )}
 
         {vaultProjects.length > 0 && (
-          <div style={{
-            flex: 1, display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))',
-            gap: 24, alignContent: 'center',
-          }}>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 28, alignContent: 'center' }}>
             {sortedProjects.map((project) => (
-              <div
-                key={project.directory}
+              <div key={project.directory}
                 draggable={sortMode === 'manual'}
                 onDragStart={(e) => handleDragStart(e, project.directory)}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, project.directory)}
-                style={{ cursor: sortMode === 'manual' ? 'grab' : undefined }}
-              >
-                <NovelCard project={project}
-                  onOpen={() => handleOpen(project)}
-                  onDelete={() => handleDelete(project)} />
+                style={{ cursor: sortMode === 'manual' ? 'grab' : undefined }}>
+                <NovelCard project={project} onOpen={() => handleOpen(project)} onDelete={() => handleDelete(project)} />
               </div>
             ))}
-            {/* Add new */}
-            <div onClick={() => setShowCreate(true)} style={{ cursor: 'pointer', transition: 'all 0.3s' }}
+            <div onClick={() => setShowCreate(true)} style={{ cursor: 'pointer', transition: 'all 0.25s' }}
               onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}>
               <div style={{
-                borderRadius: '3px 8px 8px 3px',
-                boxShadow: '0 4px 14px rgba(61,74,61,0.08)',
+                borderRadius: 10, boxShadow: '0 3px 10px rgba(61,74,61,0.06)',
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', aspectRatio: '3/4',
-                border: '2px dashed rgba(107,155,107,0.2)',
-                background: 'rgba(255,255,255,0.35)',
+                justifyContent: 'center', aspectRatio: '2/3',
+                border: '2px dashed rgba(107,155,107,0.2)', background: 'rgba(255,255,255,0.3)',
               }}>
-                <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, #6b9b6b, #5a8a5a)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 200, boxShadow: '0 2px 8px rgba(107,155,107,0.25)' }}>+</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(61,74,61,0.45)', marginTop: 8, letterSpacing: 0.5 }}>新建作品</div>
+                <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'linear-gradient(135deg, #6b9b6b, #5a8a5a)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 200, boxShadow: '0 2px 8px rgba(107,155,107,0.25)' }}>+</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(61,74,61,0.4)', marginTop: 8 }}>新建作品</div>
               </div>
             </div>
           </div>
         )}
       </div>
 
-      <div style={{
-        flexShrink: 0, padding: '12px 40px',
-        borderTop: '1px solid rgba(107,155,107,0.08)',
-        display: 'flex', justifyContent: 'center', gap: 32, position: 'relative', zIndex: 1,
-      }}>
+      <div style={{ flexShrink: 0, padding: '12px 40px', borderTop: '1px solid rgba(107,155,107,0.08)', display: 'flex', justifyContent: 'center', gap: 32, position: 'relative', zIndex: 1 }}>
         <span style={{ fontSize: 11, color: 'var(--color-ink-muted)', opacity: 0.5 }}>书织 StoryLoom</span>
         <span style={{ fontSize: 11, color: 'var(--color-ink-muted)', opacity: 0.35 }}>墨通山海路，梭停万象全。</span>
       </div>
