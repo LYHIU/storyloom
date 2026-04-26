@@ -112,36 +112,28 @@ function NovelCard({ project, onOpen, onDelete }: {
         transform: 'rotate(-0.4deg)',
       }} />
 
-      {/* Main notepad */}
+      {/* Main card */}
       <div style={{
         position: 'relative',
-        background: 'linear-gradient(180deg, #fdfaf4 0%, #f7f1e6 100%)',
-        borderRadius: '2px 8px 8px 2px',
-        boxShadow: '0 2px 10px rgba(61,74,61,0.07), 0 1px 2px rgba(0,0,0,0.05)',
+        background: 'rgba(255,255,255,0.75)',
+        backdropFilter: 'blur(4px)',
+        borderRadius: 10,
+        boxShadow: '0 2px 12px rgba(61,74,61,0.06), 0 1px 3px rgba(0,0,0,0.04)',
         overflow: 'hidden',
       }}>
-        {/* Ring binder hole */}
+        {/* Cover image — inset photo */}
         <div style={{
-          position: 'absolute', top: 14, left: 10, zIndex: 4,
-          width: 14, height: 14, borderRadius: '50%',
-          background: 'radial-gradient(circle at 40% 40%, #d4cfc4 0%, #b8b0a0 100%)',
-          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.06)',
-        }} />
-
-        {/* Cover image */}
-        <div style={{
-          margin: '20px 14px 8px 30px',
-          borderRadius: 3, overflow: 'hidden',
+          margin: '12px 12px 0 12px',
+          borderRadius: 5, overflow: 'hidden',
           aspectRatio: '3/2',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
-          background: coverUrl ? '#e0e0e0' : bgColor(name),
+          boxShadow: '0 1px 4px rgba(0,0,0,0.12)',
+          background: coverUrl ? '#ddd' : bgColor(name),
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           position: 'relative',
         }}>
           {coverUrl ? (
             <img src={coverUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
-            /* Seal-style initial — ring + embossed character */
             <div style={{
               width: 56, height: 56, borderRadius: '50%',
               border: '1.5px solid rgba(255,255,255,0.35)',
@@ -176,16 +168,9 @@ function NovelCard({ project, onOpen, onDelete }: {
           </button>
         </div>
 
-        {/* Ruled lines */}
-        <div style={{ padding: '0 14px 4px 30px' }}>
-          <div style={{ height: 1, background: 'rgba(107,155,107,0.1)', marginBottom: 5 }} />
-          <div style={{ height: 1, background: 'rgba(107,155,107,0.06)', marginBottom: 5 }} />
-          <div style={{ height: 1, background: 'rgba(107,155,107,0.03)', marginBottom: 8 }} />
-        </div>
-
-        {/* Title + actions */}
+        {/* Title */}
         <div style={{
-          padding: '0 14px 12px 30px',
+          padding: '12px 14px 14px',
           display: 'flex', alignItems: 'center', gap: 8,
         }}>
           {editingName ? (
@@ -210,9 +195,9 @@ function NovelCard({ project, onOpen, onDelete }: {
               onClick={handleStartRename}
               title="点击重命名"
               style={{
-                flex: 1, fontSize: 13, fontWeight: 500, color: 'var(--color-ink-green)',
+                flex: 1, fontSize: 14, fontWeight: 600, color: 'var(--color-ink-green)',
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                cursor: 'text',
+                cursor: 'text', letterSpacing: 0.5,
               }}
             >
               {name}
@@ -462,16 +447,23 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
                   onDelete={() => handleDelete(project)} />
               </div>
             ))}
-            {/* Add-new card */}
+            {/* Add-new card — same card style */}
             <div onClick={() => setShowCreate(true)} style={{ cursor: 'pointer', position: 'relative', transition: 'all 0.3s' }}
               onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}>
-              <div style={{ position: 'absolute', inset: '5px 3px -5px 3px', background: '#e3ded2', borderRadius: 2, transform: 'rotate(0.7deg)' }} />
-              <div style={{ position: 'absolute', inset: '2px 1.5px -2px 1.5px', background: '#ebe6db', borderRadius: 2, transform: 'rotate(-0.4deg)' }} />
-              <div style={{ position: 'relative', background: 'linear-gradient(180deg, #fdfaf4 0%, #f7f1e6 100%)', borderRadius: '2px 8px 8px 2px', boxShadow: '0 2px 10px rgba(61,74,61,0.07)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px 20px', gap: 10 }}>
-                <div style={{ position: 'absolute', top: 14, left: 10, width: 14, height: 14, borderRadius: '50%', background: 'radial-gradient(circle at 40% 40%, #d4cfc4 0%, #b8b0a0 100%)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)' }} />
-                <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'linear-gradient(135deg, #6b9b6b, #5a8a5a)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 200, boxShadow: '0 2px 8px rgba(107,155,107,0.25)' }}>+</div>
-                <div style={{ fontSize: 13, color: 'var(--color-ink-muted)' }}>新建作品</div>
+              <div style={{ position: 'absolute', inset: '4px 2px -4px 2px', background: '#e3ded2', borderRadius: 2, transform: 'rotate(0.6deg)' }} />
+              <div style={{ position: 'absolute', inset: '1px 1px -1px 1px', background: '#ebe6db', borderRadius: 2, transform: 'rotate(-0.3deg)' }} />
+              <div style={{
+                position: 'relative',
+                background: 'rgba(255,255,255,0.5)',
+                borderRadius: 10,
+                boxShadow: '0 2px 12px rgba(61,74,61,0.04)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                justifyContent: 'center', padding: '48px 20px', gap: 12,
+                border: '2px dashed rgba(107,155,107,0.2)',
+              }}>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'linear-gradient(135deg, #6b9b6b, #5a8a5a)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 200, boxShadow: '0 2px 8px rgba(107,155,107,0.25)' }}>+</div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-ink-muted)', letterSpacing: 0.5 }}>新建作品</div>
               </div>
             </div>
           </div>
