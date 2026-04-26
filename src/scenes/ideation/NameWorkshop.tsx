@@ -26,7 +26,7 @@ export function NameWorkshop() {
   const [count, setCount] = useState(10);
   const [extra, setExtra] = useState('');
   const [loading, setLoading] = useState(false);
-  const abortRef = useRef(false);
+  const genIdRef = useRef(0);
   const [results, setResults] = useState<string[]>([]);
   const [saved, setSaved] = useState<Set<string>>(new Set());
   const [error, setError] = useState('');
@@ -54,7 +54,8 @@ export function NameWorkshop() {
 
   const generate = async () => {
     if (!vaultPath) return;
-    abortRef.current = false;
+    genIdRef.current += 1;
+    const myId = genIdRef.current;
     setLoading(true);
     setError('');
     setResults([]);
@@ -88,21 +89,21 @@ export function NameWorkshop() {
         .map((l) => l.trim())
         .map((l) => l.replace(/^[\d]+[\.\、\)\s]+/, '').trim())
         .filter((l) => l.length > 0 && l.length <= 20 && !/^[\(（\-—]/.test(l));
-      if (abortRef.current) return;
+      if (genIdRef.current !== myId) return; // newer request started
       if (names.length === 0) {
         setError('AI 返回了内容但未能解析出名字，请重试。\n原始返回: ' + reply.slice(0, 300));
       } else {
         setResults(names.slice(0, count));
       }
     } catch (e) {
-      if (abortRef.current) return;
+      if (genIdRef.current !== myId) return;
       setError('请求失败: ' + String(e));
     }
     setLoading(false);
   };
 
   const stopGenerate = () => {
-    abortRef.current = true;
+    genIdRef.current += 1;
     setLoading(false);
   };
 
