@@ -2,14 +2,17 @@ import { useState } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
 import * as api from '../../lib/tauri';
 
-type NameCategory = 'character' | 'book' | 'chapter' | 'place' | 'technique';
+type NameCategory = 'character' | 'place' | 'technique' | 'faction' | 'weapon' | 'title' | 'book' | 'chapter';
 
-const CATEGORIES: { key: NameCategory; label: string }[] = [
-  { key: 'character', label: '角色名' },
-  { key: 'book', label: '书名' },
-  { key: 'chapter', label: '章节名' },
-  { key: 'place', label: '地名' },
-  { key: 'technique', label: '功法名' },
+const CATEGORIES: { key: NameCategory; label: string; btn: string }[] = [
+  { key: 'character', label: '角色名', btn: '生成角色名' },
+  { key: 'place', label: '地名', btn: '生成地名' },
+  { key: 'technique', label: '功法/技能', btn: '生成功法名' },
+  { key: 'faction', label: '帮派/组织', btn: '生成帮派名' },
+  { key: 'weapon', label: '武器/法宝', btn: '生成武器名' },
+  { key: 'title', label: '称号/昵称', btn: '生成称号' },
+  { key: 'book', label: '书名', btn: '生成书名' },
+  { key: 'chapter', label: '章节名', btn: '生成章节名' },
 ];
 
 const STYLES = ['古风', '现代', '民国', '西幻', '仙侠', '科幻', '都市', '不限'];
@@ -26,18 +29,26 @@ export function NameWorkshop() {
   const [saved, setSaved] = useState<Set<string>>(new Set());
   const [error, setError] = useState('');
 
+  const current = CATEGORIES.find((c) => c.key === category)!;
+
   const generate = async () => {
     if (!vaultPath) return;
     setLoading(true);
     setError('');
     setResults([]);
 
+    const basePrompt = (thing: string) =>
+      `生成${count}个${style === '不限' ? '' : style}风格的${thing}。${extra ? '额外要求：' + extra : ''}。严格每行一个结果，不要序号前缀，不要任何解释说明，直接输出结果列表。`;
+
     const prompts: Record<NameCategory, string> = {
-      character: `生成${count}个${style === '不限' ? '' : style}风格的角色名字，性别${gender}。${extra ? '额外要求：' + extra : ''}。严格每行一个名字，不要序号前缀，不要任何解释说明文字，直接输出名字列表。`,
-      book: `生成${count}个${style === '不限' ? '' : style}风格的小说书名。${extra ? '额外要求：' + extra : ''}。严格每行一个书名，不要序号前缀，不要任何解释说明文字，直接输出书名列表。`,
-      chapter: `生成${count}个${style === '不限' ? '' : style}风格的网文章节标题。${extra ? '额外要求：' + extra : ''}。严格每行一个标题，不要序号前缀，不要任何解释说明文字，直接输出标题列表。`,
-      place: `生成${count}个${style === '不限' ? '' : style}风格的地名。${extra ? '额外要求：' + extra : ''}。严格每行一个地名，不要序号前缀，不要任何解释说明文字，直接输出地名列表。`,
-      technique: `生成${count}个${style === '不限' ? '' : style}风格的功法/技能名称。${extra ? '额外要求：' + extra : ''}。严格每行一个名称，不要序号前缀，不要任何解释说明文字，直接输出名称列表。`,
+      character: basePrompt(`角色名字，性别${gender}`),
+      place: basePrompt('地名'),
+      technique: basePrompt('功法或技能名称'),
+      faction: basePrompt('帮派、宗门或组织名称'),
+      weapon: basePrompt('武器或法宝名称'),
+      title: basePrompt('人物称号或昵称'),
+      book: basePrompt('小说书名'),
+      chapter: basePrompt('网文章节标题'),
     };
 
     try {
@@ -46,12 +57,11 @@ export function NameWorkshop() {
         temperature: 0.9,
         max_tokens: 1024,
       });
-      // Parse: split by newlines, clean each line, drop empty and lines that are purely numbers/punctuation
       const names = reply
         .split('\n')
         .map((l) => l.trim())
-        .map((l) => l.replace(/^[\d]+[\.\、\)\s]+/, '').trim()) // remove leading "1. " or "1、" or "1) "
-        .filter((l) => l.length > 0 && l.length <= 20 && !/^[\(（]/.test(l)); // drop empty, too long (comments), or parenthesized
+        .map((l) => l.replace(/^[\d]+[\.\、\)\s]+/, '').trim())
+        .filter((l) => l.length > 0 && l.length <= 20 && !/^[\(（]/.test(l));
       if (names.length === 0) {
         setError('AI 返回了内容但未能解析出名字，请重试。原始返回: ' + reply.slice(0, 300));
       } else {
@@ -108,7 +118,7 @@ export function NameWorkshop() {
           </Row>
         </div>
         <div style={{ marginBottom: 12 }}>
-          <input type="text" value={extra} placeholder="额外要求（如：带草字头、两个字、首字母Z...）"
+          <input type="text" value={extra} placeholder="额外要求（如：带草字头、叠字、两个字、首字母Z...）"
             onChange={(e) => setExtra(e.target.value)}
             style={{
               width: '100%', boxSizing: 'border-box',
@@ -126,7 +136,7 @@ export function NameWorkshop() {
             background: 'linear-gradient(135deg, var(--color-accent-yellow), #d4b040)',
             boxShadow: '0 3px 10px rgba(232,197,96,0.3)', transition: 'all 0.2s', marginBottom: 20,
           }}>
-          {loading ? '生成中...' : '✨ 生成名字'}
+          {loading ? '生成中...' : '✨ ' + current.btn}
         </button>
 
         {/* Error */}
