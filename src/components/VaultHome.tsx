@@ -3,6 +3,7 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { useProjectStore } from '../stores/projectStore';
 import type { ProjectMeta } from '../lib/tauri';
 import * as api from '../lib/tauri';
+import { AiSettings } from './AiSettings';
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
   type DragEndEvent,
@@ -315,6 +316,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
   const [manualVersion, setManualVersion] = useState(0); // bump to force recompute after drag
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [showAiSettings, setShowAiSettings] = useState(false);
 
   const handleSortClick = (mode: SortMode) => {
     if (mode === sortMode) { setSortAsc(!sortAsc); } else { setSortMode(mode); setSortAsc(true); }
@@ -443,6 +445,12 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
             style={{ padding: '8px 20px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', border: '1px solid rgba(107,155,107,0.2)', borderRadius: 980, background: 'rgba(255,255,255,0.4)', color: 'var(--color-ink-muted)', boxShadow: '0 1px 3px rgba(61,74,61,0.04)', transition: 'all 0.2s' }}
             onMouseEnter={(e) => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'rgba(107,155,107,0.4)'; e.currentTarget.style.color = 'var(--color-ink-green)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(61,74,61,0.08)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.4)'; e.currentTarget.style.borderColor = 'rgba(107,155,107,0.2)'; e.currentTarget.style.color = 'var(--color-ink-muted)'; e.currentTarget.style.boxShadow = '0 1px 3px rgba(61,74,61,0.04)'; }}>切换书库</button>
+          <button onClick={() => setShowAiSettings(true)} title="AI 设置"
+            style={{ padding: '8px 14px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', border: '1px solid rgba(184,149,176,0.3)', borderRadius: 980, background: 'rgba(255,255,255,0.4)', color: 'var(--color-accent-purple)', boxShadow: '0 1px 3px rgba(61,74,61,0.04)', transition: 'all 0.2s' }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'rgba(184,149,176,0.6)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.4)'; e.currentTarget.style.borderColor = 'rgba(184,149,176,0.3)'; }}>
+            AI 设置
+          </button>
         </div>
       </header>
 
@@ -530,6 +538,8 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
         <span style={{ fontSize: 11, color: 'var(--color-ink-muted)', opacity: 0.5 }}>书织 StoryLoom</span>
         <span style={{ fontSize: 11, color: 'var(--color-ink-muted)', opacity: 0.35 }}>墨通山海路，梭停万象全。</span>
       </div>
+
+      {showAiSettings && <AiSettings onClose={() => setShowAiSettings(false)} />}
     </div>
   );
 }
