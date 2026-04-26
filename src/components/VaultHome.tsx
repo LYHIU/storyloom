@@ -75,7 +75,7 @@ function NovelCard({ project, onOpen }: { project: ProjectMeta; onOpen: () => vo
 
 export function VaultHome({ onProjectOpened }: VaultHomeProps) {
   const { vaultPath, vaultProjects, isLoading, error, clearError,
-    setVaultPath, openProject, createProject } = useProjectStore();
+    setVaultPath, clearVaultPath, openProject, createProject } = useProjectStore();
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
 
@@ -150,31 +150,56 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
           )}
         </div>
 
-        <button
-          onClick={handleSwitchVault}
-          style={{
-            padding: '8px 20px', fontSize: 12, cursor: 'pointer',
-            border: '1px solid rgba(107,155,107,0.2)', borderRadius: 980,
-            background: 'rgba(255,255,255,0.4)', color: 'var(--color-ink-muted)',
-            fontFamily: 'inherit', letterSpacing: 1,
-            boxShadow: '0 1px 3px rgba(61,74,61,0.04)',
-            transition: 'all 0.2s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#fff';
-            e.currentTarget.style.borderColor = 'rgba(107,155,107,0.4)';
-            e.currentTarget.style.color = 'var(--color-ink-green)';
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(61,74,61,0.08)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(255,255,255,0.4)';
-            e.currentTarget.style.borderColor = 'rgba(107,155,107,0.2)';
-            e.currentTarget.style.color = 'var(--color-ink-muted)';
-            e.currentTarget.style.boxShadow = '0 1px 3px rgba(61,74,61,0.04)';
-          }}
-        >
-          切换书库
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => { if (window.confirm('退出书库将返回首页，书库路径会被清除。确定？')) clearVaultPath(); }}
+            style={{
+              padding: '8px 16px', fontSize: 12, cursor: 'pointer',
+              border: '1px solid rgba(211,47,47,0.15)', borderRadius: 980,
+              background: 'rgba(255,255,255,0.4)', color: 'var(--color-ink-muted)',
+              fontFamily: 'inherit',
+              boxShadow: '0 1px 3px rgba(61,74,61,0.04)',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#fff';
+              e.currentTarget.style.borderColor = 'rgba(211,47,47,0.3)';
+              e.currentTarget.style.color = '#d32f2f';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.4)';
+              e.currentTarget.style.borderColor = 'rgba(211,47,47,0.15)';
+              e.currentTarget.style.color = 'var(--color-ink-muted)';
+            }}
+          >
+            退出书库
+          </button>
+          <button
+            onClick={handleSwitchVault}
+            style={{
+              padding: '8px 20px', fontSize: 12, cursor: 'pointer',
+              border: '1px solid rgba(107,155,107,0.2)', borderRadius: 980,
+              background: 'rgba(255,255,255,0.4)', color: 'var(--color-ink-muted)',
+              fontFamily: 'inherit', letterSpacing: 1,
+              boxShadow: '0 1px 3px rgba(61,74,61,0.04)',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#fff';
+              e.currentTarget.style.borderColor = 'rgba(107,155,107,0.4)';
+              e.currentTarget.style.color = 'var(--color-ink-green)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(61,74,61,0.08)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.4)';
+              e.currentTarget.style.borderColor = 'rgba(107,155,107,0.2)';
+              e.currentTarget.style.color = 'var(--color-ink-muted)';
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(61,74,61,0.04)';
+            }}
+          >
+            切换书库
+          </button>
+        </div>
       </header>
 
       {/* Divider */}
