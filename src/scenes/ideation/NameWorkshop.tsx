@@ -53,7 +53,7 @@ export function NameWorkshop() {
   ];
 
   const generate = async () => {
-    if (!vaultPath) return;
+    if (!vaultPath || loading) return;
     genIdRef.current += 1;
     const myId = genIdRef.current;
     setLoading(true);
