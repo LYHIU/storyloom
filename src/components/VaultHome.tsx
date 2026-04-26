@@ -181,7 +181,7 @@ function NovelCard({ project, onOpen, onDelete }: {
             onClick={handleStartRename}
             title="点击重命名"
             style={{
-              fontSize: 13, fontWeight: 400, color: '#3d4a3d',
+              fontSize: 15, fontWeight: 700, color: '#3d4a3d',
               fontFamily: '"STSong", "Songti SC", "Noto Serif SC", "KaiTi", "楷体", serif',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
               maxWidth: '100%', cursor: 'text', letterSpacing: 1.5,
