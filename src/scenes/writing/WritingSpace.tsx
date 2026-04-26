@@ -7,23 +7,17 @@ export function WritingSpace() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div
-      className="scene-writing"
-      style={{
-        display: 'flex', flexDirection: 'column',
-        height: '100%',
-      }}
-    >
-      {/* 主内容区 */}
+    <div className="scene-writing" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         <OutlineSidebar
           collapsed={sidebarCollapsed}
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         />
-        <Editor />
+        <Editor
+          sidebarCollapsed={sidebarCollapsed}
+          onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
       </div>
-
-      {/* 底部状态栏 */}
       <StatusBar />
     </div>
   );
