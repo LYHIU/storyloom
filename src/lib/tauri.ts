@@ -60,6 +60,10 @@ export async function setCover(projectPath: string, sourcePath: string): Promise
   return invoke('set_cover', { projectPath, sourcePath });
 }
 
+export async function deleteCover(projectPath: string): Promise<void> {
+  return invoke('delete_cover', { projectPath });
+}
+
 export async function deleteProject(projectPath: string): Promise<void> {
   return invoke('delete_project', { projectPath });
 }

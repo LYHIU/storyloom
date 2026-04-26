@@ -63,6 +63,17 @@ pub fn rename_project(project_path: String, new_name: String) -> Result<String, 
 }
 
 #[tauri::command]
+pub fn delete_cover(project_path: String) -> Result<(), String> {
+    for ext in &["png", "jpg", "jpeg"] {
+        let cover_path = Path::new(&project_path).join(format!("cover.{}", ext));
+        if cover_path.exists() {
+            fs::remove_file(&cover_path).map_err(|e| e.to_string())?;
+        }
+    }
+    Ok(())
+}
+
+#[tauri::command]
 pub fn create_project(name: String, directory: String) -> Result<ProjectMeta, String> {
     let project_dir = Path::new(&directory).join(&name);
     if project_dir.exists() {

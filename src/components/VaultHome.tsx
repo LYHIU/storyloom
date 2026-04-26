@@ -62,6 +62,12 @@ function NovelCard({ project, onOpen, onDelete }: {
     }
   };
 
+  const handleDeleteCover = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    await api.deleteCover(project.directory);
+    setCoverUrl(null);
+  };
+
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (delConfirm) { onDelete(); } else { setDelConfirm(true); setTimeout(() => setDelConfirm(false), 3000); }
@@ -158,22 +164,24 @@ function NovelCard({ project, onOpen, onDelete }: {
           }}
         >{delConfirm ? '?' : '✕'}</button>
 
-        {/* Seal — top-left */}
-        <div style={{
-          width: 60, height: 60, borderRadius: '50%',
-          marginBottom: 20, marginTop: 4,
-          border: '1.5px solid rgba(255,255,255,0.35)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.06)',
-          position: 'relative', zIndex: 2,
-        }}>
-          <span style={{
-            fontSize: 30, fontWeight: 400, color: 'rgba(255,255,255,0.85)',
-            fontFamily: '"KaiTi", "STKaiti", "楷体", "FangSong", "仿宋", serif',
-            textShadow: '0 -1px 0 rgba(255,255,255,0.3), 0 2px 3px rgba(0,0,0,0.08)',
-            lineHeight: 1,
-          }}>{initial}</span>
-        </div>
+        {/* Seal — only when no cover */}
+        {!coverUrl && (
+          <div style={{
+            width: 60, height: 60, borderRadius: '50%',
+            marginBottom: 20, marginTop: 4,
+            border: '1.5px solid rgba(255,255,255,0.35)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.06)',
+            position: 'relative', zIndex: 2,
+          }}>
+            <span style={{
+              fontSize: 30, fontWeight: 400, color: 'rgba(255,255,255,0.85)',
+              fontFamily: '"KaiTi", "STKaiti", "楷体", "FangSong", "仿宋", serif',
+              textShadow: '0 -1px 0 rgba(255,255,255,0.3), 0 2px 3px rgba(0,0,0,0.08)',
+              lineHeight: 1,
+            }}>{initial}</span>
+          </div>
+        )}
 
         {/* Title on cover */}
         {editingName ? (
@@ -203,19 +211,28 @@ function NovelCard({ project, onOpen, onDelete }: {
           >{name}</span>
         )}
 
-        {/* Upload */}
-        <button
-          onClick={handleUploadCover}
-          title="上传封面"
-          style={{
-            position: 'absolute', bottom: 8, right: 8, zIndex: 4,
-            width: 24, height: 24, borderRadius: '50%',
-            background: 'rgba(0,0,0,0.25)', border: 'none',
-            cursor: 'pointer', color: '#fff', fontSize: 11,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            opacity: hovered ? 1 : 0, transition: 'opacity 0.2s',
-          }}
-        >📷</button>
+        {/* Upload / Delete cover */}
+        {coverUrl ? (
+          <button onClick={handleDeleteCover} title="删除封面"
+            style={{
+              position: 'absolute', bottom: 8, right: 8, zIndex: 4,
+              width: 24, height: 24, borderRadius: '50%',
+              background: 'rgba(211,47,47,0.5)', border: 'none',
+              cursor: 'pointer', color: '#fff', fontSize: 11,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              opacity: hovered ? 1 : 0, transition: 'opacity 0.2s',
+            }}>🗑</button>
+        ) : (
+          <button onClick={handleUploadCover} title="上传封面"
+            style={{
+              position: 'absolute', bottom: 8, right: 8, zIndex: 4,
+              width: 24, height: 24, borderRadius: '50%',
+              background: 'rgba(0,0,0,0.25)', border: 'none',
+              cursor: 'pointer', color: '#fff', fontSize: 11,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              opacity: hovered ? 1 : 0, transition: 'opacity 0.2s',
+            }}>📷</button>
+        )}
       </div>
     </div>
   );

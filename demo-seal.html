@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><meta charset="UTF-8"><title>书籍卡片 · 20色</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: linear-gradient(170deg, #faf8f4 0%, #f2efe8 30%, #e8e4db 60%, #dfdbd1 100%);
+    min-height: 100vh; padding: 48px;
+    font-family: "PingFang SC","Microsoft YaHei",sans-serif;
+  }
+  h2 { color: rgba(61,74,61,0.5); font-weight: 300; font-size: 14px; letter-spacing: 2px; text-align: center; margin-bottom: 8px; }
+  h3 { color: rgba(61,74,61,0.3); font-weight: 300; font-size: 11px; letter-spacing: 1px; text-align: center; margin-bottom: 32px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 36px; max-width: 1100px; margin: 0 auto; }
+  .card-wrap { cursor: pointer; transition: all 0.25s; }
+  .card-wrap:hover { transform: translateY(-4px); }
+
+  .book { position: relative; }
+
+  .pages-block {
+    position: absolute; left: 4px; top: 0; right: -8px; bottom: -9px;
+    background: #ece5d5; border-radius: 0 6px 6px 0; z-index: 0;
+  }
+  .pages-block::after {
+    content: ''; position: absolute; right: 1px; top: 3px; bottom: 9px; width: 2px;
+    background: repeating-linear-gradient(180deg,
+      rgba(255,255,255,0.5) 0px, rgba(0,0,0,0.04) 1px, transparent 2px, transparent 4px);
+  }
+  .pages-block::before {
+    content: ''; position: absolute; bottom: 1px; left: 3px; right: 7px; height: 2px;
+    background: repeating-linear-gradient(90deg,
+      rgba(255,255,255,0.5) 0px, rgba(0,0,0,0.04) 1px, transparent 2px, transparent 4px);
+  }
+
+  .cover {
+    position: relative; z-index: 1;
+    border-radius: 0 6px 6px 0;
+    aspect-ratio: 3/4;
+    display: flex; flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 16px 16px;
+    box-shadow: 0 4px 14px rgba(61,74,61,0.12), 0 1px 3px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+  .cover::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 30%, rgba(0,0,0,0.04) 100%);
+  }
+
+  .spine {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 7px; z-index: 3;
+    background: linear-gradient(90deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.12) 50%, transparent 100%);
+    border-radius: 3px 0 0 3px;
+  }
+  .spine::after {
+    content: ''; position: absolute; right: 0; top: 4px; bottom: 4px; width: 1px;
+    background: rgba(255,255,255,0.12);
+  }
+
+  .seal {
+    width: 60px; height: 60px; border-radius: 50%;
+    margin: 4px 0 20px 0;
+    border: 1.5px solid rgba(255,255,255,0.35);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: inset 0 1px 2px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.06);
+    position: relative; z-index: 2;
+  }
+  .seal span {
+    font-size: 30px; font-weight: 400; color: rgba(255,255,255,0.85);
+    font-family: "KaiTi", "STKaiti", "楷体", "FangSong", "仿宋", serif;
+    text-shadow: 0 -1px 0 rgba(255,255,255,0.3), 0 2px 3px rgba(0,0,0,0.08);
+    line-height: 1;
+  }
+
+  .cover-title {
+    position: relative; z-index: 2;
+    font-size: 15px; font-weight: 500; color: rgba(61,74,61,0.65);
+    text-align: left;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    max-width: 100%; letter-spacing: 1px;
+  }
+
+  .del-btn {
+    position: absolute; top: 5px; right: 5px; z-index: 4;
+    width: 18px; height: 18px; border-radius: 50%;
+    border: none; cursor: pointer;
+    background: transparent; color: rgba(255,255,255,0.45);
+    font-size: 10px; display: flex; align-items: center; justify-content: center;
+    font-family: inherit; opacity: 0; transition: all 0.2s;
+  }
+  .card-wrap:hover .del-btn { opacity: 1; }
+  .del-btn:hover { color: #fff; background: rgba(211,47,47,0.6); }
+  .upload-btn {
+    position: absolute; bottom: 8px; right: 8px; z-index: 4;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(0,0,0,0.25); border: none; cursor: pointer;
+    color: #fff; font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .card-wrap:hover .upload-btn { opacity: 1; }
+
+  /* Add new */
+  .add-cover {
+    position: relative; z-index: 1; border-radius: 0 6px 6px 0;
+    aspect-ratio: 3/4;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 24px; gap: 8px;
+    border: 2px dashed rgba(107,155,107,0.2);
+    background: rgba(255,255,255,0.35);
+    box-shadow: 0 3px 10px rgba(61,74,61,0.06);
+  }
+  .add-circle {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, #6b9b6b, #5a8a5a); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 200;
+    box-shadow: 0 2px 8px rgba(107,155,107,0.25);
+  }
+</style>
+</head>
+<body>
+<h2>书籍卡片 · 20色</h2>
+<h3>前10组: 原始 · 后10组: 新增(降低饱和度)</h3>
+
+<div class="grid">
+  <!-- Card template script to fill with all 20 colors -->
+  <script>
+    const COLORS = [
+      'linear-gradient(160deg, #ecccd0, #d8acb2)',
+      'linear-gradient(160deg, #c0d8cc, #a4c0b0)',
+      'linear-gradient(160deg, #c0d4e8, #a4bcd8)',
+      'linear-gradient(160deg, #cec4dc, #b8accc)',
+      'linear-gradient(160deg, #ecd4c8, #d4b8a8)',
+      'linear-gradient(160deg, #e4dcc0, #d4c8a8)',
+      'linear-gradient(160deg, #c0dce8, #acccd8)',
+      'linear-gradient(160deg, #e8c8d4, #d4b0c0)',
+      'linear-gradient(160deg, #d4e0c4, #c0ceac)',
+      'linear-gradient(160deg, #ecccc8, #d4b8b0)',
+      'linear-gradient(160deg, #9fc9cc, #8abebe)',
+      'linear-gradient(160deg, #e8c8ce, #dba0aa)',
+      'linear-gradient(160deg, #efe0a0, #ead89a)',
+      'linear-gradient(160deg, #b6ce9a, #a4c0a0)',
+      'linear-gradient(160deg, #8ebe9a, #a0c0a8)',
+      'linear-gradient(160deg, #c89a60, #bc5c6a)',
+      'linear-gradient(160deg, #e8d0d6, #daa0aa)',
+      'linear-gradient(160deg, #a8c8c8, #8ab0c8)',
+      'linear-gradient(160deg, #dcd8a8, #e8d89a)',
+      'linear-gradient(160deg, #8ab0c8, #84baba)',
+    ];
+    const NAMES = ['书', '深', '风', '梦', '夜', '春', '云', '花', '山', '光', '海', '星', '雪', '月', '雨', '林', '火', '影', '霜', '晨'];
+    document.write(COLORS.map((c, i) => `
+      <div class="card-wrap">
+        <div class="book">
+          <div class="pages-block"></div>
+          <div class="cover" style="background:${c}">
+            <div class="spine"></div>
+            <button class="del-btn">✕</button>
+            <div class="seal"><span>${NAMES[i]}</span></div>
+            <div class="cover-title">${NAMES[i]}色样本${i+1}</div>
+            <button class="upload-btn">📷</button>
+          </div>
+        </div>
+      </div>
+    `).join(''));
+  </script>
+
+  <div class="card-wrap">
+    <div class="book">
+      <div class="pages-block"></div>
+      <div class="add-cover">
+        <div class="add-circle">+</div>
+        <div style="font-size:13px;font-weight:600;color:rgba(61,74,61,0.4)">新建作品</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

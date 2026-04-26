@@ -9,6 +9,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::project::read_cover,
             commands::project::set_cover,
+            commands::project::delete_cover,
             commands::project::rename_project,
             commands::project::delete_project,
             commands::project::create_project,
