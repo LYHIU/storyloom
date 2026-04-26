@@ -3,6 +3,14 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { useProjectStore } from '../stores/projectStore';
 import type { ProjectMeta } from '../lib/tauri';
 import * as api from '../lib/tauri';
+import {
+  DndContext, closestCenter, PointerSensor, useSensor, useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext, useSortable, rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface VaultHomeProps {
   onProjectOpened: () => void;
@@ -36,6 +44,22 @@ const MACARON = [
 function bgColor(name: string): string {
   const idx = (name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 7) % MACARON.length;
   return MACARON[idx];
+}
+
+function SortableNovelCard({ project, onOpen, onDelete, disabled }: {
+  project: ProjectMeta; onOpen: () => void; onDelete: () => void; disabled: boolean;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: project.directory, disabled });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    touchAction: 'none',
+  };
+  return (
+    <div ref={setNodeRef} style={style} {...(disabled ? {} : attributes)} {...(disabled ? {} : listeners)}>
+      <NovelCard project={project} onOpen={onOpen} onDelete={onDelete} />
+    </div>
+  );
 }
 
 function NovelCard({ project, onOpen, onDelete }: {
@@ -257,7 +281,19 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
   const handleSortClick = (mode: SortMode) => {
     if (mode === sortMode) { setSortAsc(!sortAsc); } else { setSortMode(mode); setSortAsc(true); }
   };
-  const [dragItem, setDragItem] = useState<string | null>(null);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const order = sortedProjects.map(p => p.directory);
+    const fromIdx = order.indexOf(active.id as string);
+    const toIdx = order.indexOf(over.id as string);
+    if (fromIdx === -1 || toIdx === -1) return;
+    order.splice(fromIdx, 1);
+    order.splice(toIdx, 0, active.id as string);
+    if (vaultPath) saveManualOrder(vaultPath, order);
+  };
 
   const handleSwitchVault = async () => {
     const selected = await open({ directory: true, multiple: false, title: '选择书库目录' });
@@ -282,18 +318,6 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
     const rest = projects.filter(p => !known.has(p.directory));
     return [...ordered, ...rest];
   })();
-
-  const handleDragStart = (e: React.DragEvent, dir: string) => { if (sortMode !== 'manual') { e.preventDefault(); return; } setDragItem(dir); e.dataTransfer.setData('text/plain', dir); e.dataTransfer.effectAllowed = 'move'; const img = new Image(); img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; e.dataTransfer.setDragImage(img, 0, 0); };
-  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
-  const handleDrop = (e: React.DragEvent, targetDir: string) => {
-    e.preventDefault(); if (!dragItem || dragItem === targetDir) return;
-    const order = sortedProjects.map(p => p.directory);
-    const fromIdx = order.indexOf(dragItem), toIdx = order.indexOf(targetDir);
-    if (fromIdx === -1 || toIdx === -1) return;
-    order.splice(fromIdx, 1); order.splice(toIdx, 0, dragItem);
-    if (vaultPath) saveManualOrder(vaultPath, order);
-    setDragItem(null);
-  };
 
   const vaultDisplayName = vaultPath ? vaultPath.replace(/\\/g, '/').split('/').filter(Boolean).pop() || vaultPath : '';
 
@@ -385,21 +409,18 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
         )}
 
         {vaultProjects.length > 0 && (
-          <div
-            style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(135px, 1fr))', gap: 36, alignContent: 'center' }}
-            onDragOver={handleDragOver}
-          >
-            {sortedProjects.map((project) => (
-              <div key={project.directory}
-                draggable={sortMode === 'manual'}
-                onDragStart={(e) => handleDragStart(e, project.directory)}
-                onDragOver={handleDragOver}
-                onDragEnd={() => setDragItem(null)}
-                onDrop={(e) => handleDrop(e, project.directory)}
-                style={{ cursor: sortMode === 'manual' ? 'grab' : undefined, userSelect: sortMode === 'manual' ? 'none' : undefined }}>
-                <NovelCard project={project} onOpen={() => handleOpen(project)} onDelete={() => handleDelete(project)} />
-              </div>
-            ))}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={sortedProjects.map(p => p.directory)} strategy={rectSortingStrategy}>
+              <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(135px, 1fr))', gap: 36, alignContent: 'center' }}>
+                {sortedProjects.map((project) => (
+                  <SortableNovelCard
+                    key={project.directory}
+                    project={project}
+                    onOpen={() => handleOpen(project)}
+                    onDelete={() => handleDelete(project)}
+                    disabled={sortMode !== 'manual'}
+                  />
+                ))}
             <div onClick={() => setShowCreate(true)} style={{ cursor: 'pointer', position: 'relative', transition: 'all 0.25s' }}
               onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}>
@@ -421,6 +442,8 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
               </div>
             </div>
           </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 
