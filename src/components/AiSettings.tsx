@@ -8,11 +8,11 @@ const DEFAULT_CONFIG: AiConfig = {
   provider: 'deepseek',
   base_url: 'https://api.deepseek.com/v1',
   api_key: '',
-  model: 'deepseek-chat',
+  model: 'deepseek-v4-flash',
 };
 
 const PROVIDERS: { key: string; label: string; defaultUrl: string; defaultModel: string }[] = [
-  { key: 'deepseek', label: 'DeepSeek', defaultUrl: 'https://api.deepseek.com/v1', defaultModel: 'deepseek-chat' },
+  { key: 'deepseek', label: 'DeepSeek', defaultUrl: 'https://api.deepseek.com/v1', defaultModel: 'deepseek-v4-flash' },
   { key: 'openai', label: 'OpenAI', defaultUrl: 'https://api.openai.com/v1', defaultModel: 'gpt-4o-mini' },
   { key: 'claude', label: 'Claude', defaultUrl: 'https://api.anthropic.com/v1', defaultModel: 'claude-3-haiku' },
   { key: 'ollama', label: 'Ollama 本地', defaultUrl: 'http://localhost:11434/v1', defaultModel: 'qwen2.5:7b' },
