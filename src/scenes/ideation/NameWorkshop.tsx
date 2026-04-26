@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
 import * as api from '../../lib/tauri';
+import type { AiConfig } from '../../lib/tauri';
 
 type NameCategory = 'character' | 'place' | 'technique' | 'faction' | 'weapon' | 'title' | 'book' | 'chapter';
 
@@ -28,18 +29,25 @@ export function NameWorkshop() {
   const [results, setResults] = useState<string[]>([]);
   const [saved, setSaved] = useState<Set<string>>(new Set());
   const [error, setError] = useState('');
-  const [aiInfo, setAiInfo] = useState('');
+  const [aiConfig, setAiConfig] = useState<AiConfig | null>(null);
 
   const current = CATEGORIES.find((c) => c.key === category)!;
 
   useEffect(() => {
-    if (vaultPath) {
-      api.getAiConfig(vaultPath).then((c) => {
-        if (c.enabled) setAiInfo(`${c.provider} / ${c.model}`);
-        else setAiInfo('AI 未开启');
-      }).catch(() => setAiInfo(''));
-    }
+    if (vaultPath) api.getAiConfig(vaultPath).then(setAiConfig).catch(() => {});
   }, [vaultPath]);
+
+  const switchModel = async (provider: string, baseUrl: string, model: string) => {
+    if (!vaultPath || !aiConfig) return;
+    const next = { ...aiConfig, provider, base_url: baseUrl, model, enabled: true };
+    await api.saveAiConfig(vaultPath, next);
+    setAiConfig(next);
+  };
+
+  const PRESETS = [
+    { key: 'deepseek', label: 'DeepSeek', url: 'https://api.deepseek.com/v1', model: 'deepseek-v4-flash' },
+    { key: 'ollama', label: 'Ollama', url: 'http://localhost:11434', model: 'qwen3.5:4b' },
+  ];
 
   const generate = async () => {
     if (!vaultPath) return;
@@ -152,9 +160,27 @@ export function NameWorkshop() {
           }}>
           {loading ? '生成中...' : '✨ ' + current.btn}
         </button>
-        {aiInfo && (
-          <div style={{ fontSize: 11, color: 'var(--color-ink-muted)', opacity: 0.6, marginTop: 4, marginBottom: 16 }}>
-            当前模型：{aiInfo}
+        {aiConfig && aiConfig.enabled && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4, marginBottom: 16 }}>
+            <span style={{ fontSize: 11, color: 'var(--color-ink-muted)', opacity: 0.5 }}>模型</span>
+            <div style={{ display: 'flex', gap: 2, background: 'rgba(0,0,0,0.04)', borderRadius: 980, padding: 2 }}>
+              {PRESETS.map((p) => {
+                const active = aiConfig.provider === p.key;
+                return (
+                  <button key={p.key} onClick={() => switchModel(p.key, p.url, p.model)}
+                    style={{
+                      padding: '3px 12px', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit',
+                      border: 'none', borderRadius: 980,
+                      background: active ? 'var(--color-bamboo-green)' : 'transparent',
+                      color: active ? '#fff' : 'var(--color-ink-muted)',
+                      fontWeight: active ? 500 : 400,
+                      transition: 'all 0.12s',
+                    }}>
+                    {p.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
