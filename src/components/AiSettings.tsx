@@ -48,18 +48,20 @@ export function AiSettings({ onClose }: AiSettingsProps) {
     setTesting(true);
     setTestResult(null);
     try {
-      // Save config first, mark as verified
+      // Temporarily enable for test
+      await api.saveAiConfig(vaultPath, { ...config, enabled: true });
+      const reply = await api.aiChat(vaultPath, {
+        messages: [{ role: 'user', content: '你好，请回复"连接成功"' }],
+        temperature: 0.1,
+        max_tokens: 50,
+      });
+      // Only mark as verified on success
       const updated = {
         ...config, enabled: true,
         verified: config.verified.includes(config.provider) ? config.verified : [...config.verified, config.provider],
       };
       await api.saveAiConfig(vaultPath, updated);
       setConfig(updated);
-      const reply = await api.aiChat(vaultPath, {
-        messages: [{ role: 'user', content: '你好，请回复"连接成功"' }],
-        temperature: 0.1,
-        max_tokens: 50,
-      });
       setTestResult(`成功: ${reply}`);
     } catch (e) {
       setTestResult(`失败: ${e}`);
