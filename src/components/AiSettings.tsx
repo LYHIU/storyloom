@@ -16,7 +16,7 @@ const PROVIDERS: { key: string; label: string; defaultUrl: string; defaultModel:
   { key: 'deepseek', label: 'DeepSeek', defaultUrl: 'https://api.deepseek.com/v1', defaultModel: 'deepseek-v4-flash' },
   { key: 'openai', label: 'OpenAI', defaultUrl: 'https://api.openai.com/v1', defaultModel: 'gpt-4o-mini' },
   { key: 'claude', label: 'Claude', defaultUrl: 'https://api.anthropic.com/v1', defaultModel: 'claude-3-haiku' },
-  { key: 'ollama', label: 'Ollama 本地', defaultUrl: 'http://localhost:11434', defaultModel: 'qwen3.5:4b' },
+  { key: 'ollama', label: 'Ollama 本地', defaultUrl: 'http://localhost:11434', defaultModel: 'qwen2.5:1.5b' },
 ];
 
 interface AiSettingsProps {
