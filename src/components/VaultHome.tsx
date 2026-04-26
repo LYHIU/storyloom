@@ -100,6 +100,7 @@ function NovelCard({ project, onOpen, onDelete }: {
       <div style={{
         position: 'relative', zIndex: 1,
         borderRadius: '0 6px 6px 0',
+        aspectRatio: '2/3',
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
         padding: '24px 16px 20px',
@@ -343,6 +344,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
               }} />
               <div style={{
                 position: 'relative', zIndex: 1, borderRadius: '0 6px 6px 0',
+                aspectRatio: '2/3',
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', padding: 24, gap: 8,
                 border: '2px dashed rgba(107,155,107,0.2)',
