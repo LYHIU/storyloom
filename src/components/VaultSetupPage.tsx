@@ -53,121 +53,110 @@ export function VaultSetupPage({ onVaultReady }: VaultSetupPageProps) {
         pointerEvents: 'none',
       }} />
       <div style={{
-        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -30%)',
-        width: 600, height: 300,
-        borderRadius: '50%',
-        background: 'radial-gradient(ellipse, rgba(107,155,107,0.03) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
-
-      {/* Subtle dot pattern */}
-      <div style={{
-        position: 'absolute', inset: 0, opacity: 0.03,
+        position: 'absolute', inset: 0, opacity: 0.025,
         backgroundImage: `radial-gradient(circle, #6b9b6b 1px, transparent 1px)`,
         backgroundSize: '32px 32px',
         pointerEvents: 'none',
       }} />
 
-      {/* Hero section */}
+      {/* Main content — fills screen vertically */}
       <div style={{
-        flex: '0 0 auto',
-        display: 'flex', flexDirection: 'column', alignItems: 'center',
-        padding: '64px 32px 0', position: 'relative', zIndex: 1,
+        flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'space-evenly',
+        padding: '40px 32px',
+        position: 'relative', zIndex: 1,
       }}>
-        {/* Brand */}
+        {/* Hero */}
         <div style={{
-          fontSize: 16, fontWeight: 300, letterSpacing: 14,
-          color: 'var(--color-ink-muted)', marginBottom: 40,
-          textTransform: 'uppercase',
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
         }}>
-          书 织
-        </div>
-
-        {/* Poem */}
-        <div style={{
-          fontSize: 40, fontWeight: 200, lineHeight: 1.6, textAlign: 'center',
-          color: 'var(--color-ink-green)', letterSpacing: 8,
-          marginBottom: 20,
-        }}>
-          <div>书织回文锦，</div>
-          <div>无因寄陇头。</div>
-        </div>
-
-        {/* Ornament */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24,
-        }}>
-          <div style={{ width: 40, height: 1, background: 'var(--color-bamboo-green)', opacity: 0.35 }} />
           <div style={{
-            width: 8, height: 8, border: '1.5px solid var(--color-bamboo-green)',
-            borderRadius: '50%', opacity: 0.45,
-          }} />
-          <div style={{ width: 40, height: 1, background: 'var(--color-bamboo-green)', opacity: 0.35 }} />
-        </div>
-
-        {/* Tagline */}
-        <div style={{
-          fontSize: 14, fontWeight: 300, lineHeight: 1.8,
-          color: 'var(--color-ink-muted)', textAlign: 'center', letterSpacing: 2,
-          maxWidth: 460, marginBottom: 36,
-        }}>
-          以字为经、以章为纬，陪你织起人物、情节与世界。
-          <br />
-          当梭声停下，万象俱全。
-        </div>
-
-        {/* CTA Button */}
-        <button
-          onClick={handlePickVault}
-          disabled={isLoading}
-          style={{
-            padding: '14px 48px', fontSize: 15, fontWeight: 500, letterSpacing: 3,
-            cursor: 'pointer',
-            border: 'none', borderRadius: 980,
-            background: 'linear-gradient(135deg, #6b9b6b 0%, #5a8a5a 100%)',
-            color: '#fff', fontFamily: 'inherit',
-            boxShadow: '0 4px 16px rgba(107,155,107,0.35), 0 2px 4px rgba(0,0,0,0.08)',
-            transition: 'all 0.25s',
-            opacity: isLoading ? 0.7 : 1,
-          }}
-          onMouseEnter={(e) => {
-            const btn = e.currentTarget;
-            btn.style.boxShadow = '0 8px 28px rgba(107,155,107,0.45), 0 4px 8px rgba(0,0,0,0.1)';
-            btn.style.transform = 'translateY(-2px)';
-            btn.style.background = 'linear-gradient(135deg, #7aab7a 0%, #6b9b6b 100%)';
-          }}
-          onMouseLeave={(e) => {
-            const btn = e.currentTarget;
-            btn.style.boxShadow = '0 4px 16px rgba(107,155,107,0.35), 0 2px 4px rgba(0,0,0,0.08)';
-            btn.style.transform = 'translateY(0)';
-            btn.style.background = 'linear-gradient(135deg, #6b9b6b 0%, #5a8a5a 100%)';
-          }}
-          onMouseDown={(e) => {
-            const btn = e.currentTarget;
-            btn.style.boxShadow = '0 2px 6px rgba(107,155,107,0.3)';
-            btn.style.transform = 'translateY(0)';
-          }}
-        >
-          {isLoading ? '扫描中...' : '打 开 书 库'}
-        </button>
-
-        {isLoading && (
-          <div style={{ marginTop: 20, fontSize: 13, color: 'var(--color-ink-muted)' }}>
-            正在扫描作品...
+            fontSize: 16, fontWeight: 300, letterSpacing: 14,
+            color: 'var(--color-ink-muted)', marginBottom: 36,
+            textTransform: 'uppercase',
+          }}>
+            书 织
           </div>
-        )}
-      </div>
 
-      {/* Bottom feature cards — fill remaining space */}
-      <div style={{
-        flex: 1, display: 'flex', alignItems: 'flex-end',
-        padding: '0 48px 48px', position: 'relative', zIndex: 1,
-      }}>
+          <div style={{
+            fontSize: 40, fontWeight: 200, lineHeight: 1.6, textAlign: 'center',
+            color: 'var(--color-ink-green)', letterSpacing: 8,
+            marginBottom: 16,
+          }}>
+            <div>书织回文锦，</div>
+            <div>无因寄陇头。</div>
+          </div>
+
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20,
+          }}>
+            <div style={{ width: 40, height: 1, background: 'var(--color-bamboo-green)', opacity: 0.35 }} />
+            <div style={{
+              width: 8, height: 8, border: '1.5px solid var(--color-bamboo-green)',
+              borderRadius: '50%', opacity: 0.45,
+            }} />
+            <div style={{ width: 40, height: 1, background: 'var(--color-bamboo-green)', opacity: 0.35 }} />
+          </div>
+
+          <div style={{
+            fontSize: 14, fontWeight: 300, lineHeight: 1.8,
+            color: 'var(--color-ink-muted)', textAlign: 'center', letterSpacing: 2,
+            maxWidth: 460,
+          }}>
+            以字为经、以章为纬，陪你织起人物、情节与世界。
+            <br />
+            当梭声停下，万象俱全。
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+          <button
+            onClick={handlePickVault}
+            disabled={isLoading}
+            style={{
+              padding: '14px 48px', fontSize: 15, fontWeight: 500, letterSpacing: 3,
+              cursor: 'pointer',
+              border: 'none', borderRadius: 980,
+              background: 'linear-gradient(135deg, #6b9b6b 0%, #5a8a5a 100%)',
+              color: '#fff', fontFamily: 'inherit',
+              boxShadow: '0 4px 16px rgba(107,155,107,0.35), 0 2px 4px rgba(0,0,0,0.08)',
+              transition: 'all 0.25s',
+              opacity: isLoading ? 0.7 : 1,
+            }}
+            onMouseEnter={(e) => {
+              const btn = e.currentTarget;
+              btn.style.boxShadow = '0 8px 28px rgba(107,155,107,0.45), 0 4px 8px rgba(0,0,0,0.1)';
+              btn.style.transform = 'translateY(-2px)';
+              btn.style.background = 'linear-gradient(135deg, #7aab7a 0%, #6b9b6b 100%)';
+            }}
+            onMouseLeave={(e) => {
+              const btn = e.currentTarget;
+              btn.style.boxShadow = '0 4px 16px rgba(107,155,107,0.35), 0 2px 4px rgba(0,0,0,0.08)';
+              btn.style.transform = 'translateY(0)';
+              btn.style.background = 'linear-gradient(135deg, #6b9b6b 0%, #5a8a5a 100%)';
+            }}
+            onMouseDown={(e) => {
+              const btn = e.currentTarget;
+              btn.style.boxShadow = '0 2px 6px rgba(107,155,107,0.3)';
+              btn.style.transform = 'translateY(0)';
+            }}
+          >
+            {isLoading ? '扫描中...' : '打 开 书 库'}
+          </button>
+          {isLoading && (
+            <div style={{ fontSize: 13, color: 'var(--color-ink-muted)' }}>
+              正在扫描作品...
+            </div>
+          )}
+        </div>
+
+        {/* Feature cards */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
           gap: 16,
-          width: '100%', maxWidth: 800, margin: '0 auto',
+          width: '100%', maxWidth: 800,
         }}>
           {features.map((f) => (
             <div

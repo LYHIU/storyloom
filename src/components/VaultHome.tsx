@@ -1,72 +1,113 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
 import { useProjectStore } from '../stores/projectStore';
 import type { ProjectMeta } from '../lib/tauri';
+import * as api from '../lib/tauri';
 
 interface VaultHomeProps {
   onProjectOpened: () => void;
 }
 
-function NovelCard({ project, onOpen }: { project: ProjectMeta; onOpen: () => void }) {
+function BookCard({ project, onOpen }: { project: ProjectMeta; onOpen: () => void }) {
   const name = project.name;
   const initial = name.charAt(0);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    api.readCover(project.directory).then(setCoverUrl).catch(() => setCoverUrl(null));
+  }, [project.directory]);
+
   // Generate consistent color from name
   const hue = (name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 37) % 360;
-  const bgColor = `hsla(${hue}, 35%, 45%, 0.15)`;
-  const iconColor = `hsl(${hue}, 40%, 45%)`;
 
   return (
     <div
       onClick={onOpen}
       style={{
-        background: '#fff',
-        borderRadius: 14,
-        padding: '28px 24px 24px',
         cursor: 'pointer',
-        boxShadow: '0 2px 8px rgba(61,74,61,0.06), 0 1px 2px rgba(61,74,61,0.04)',
-        transition: 'all 0.3s',
-        border: '1px solid rgba(107,155,107,0.08)',
-        display: 'flex', flexDirection: 'column', gap: 14,
-        minHeight: 160,
+        display: 'flex', flexDirection: 'column',
+        transition: 'all 0.35s',
       }}
       onMouseEnter={(e) => {
         const el = e.currentTarget;
-        el.style.boxShadow = '0 12px 32px rgba(61,74,61,0.12), 0 4px 8px rgba(61,74,61,0.06)';
-        el.style.transform = 'translateY(-6px)';
-        el.style.borderColor = 'rgba(107,155,107,0.2)';
+        el.style.transform = 'translateY(-8px)';
       }}
       onMouseLeave={(e) => {
         const el = e.currentTarget;
-        el.style.boxShadow = '0 2px 8px rgba(61,74,61,0.06), 0 1px 2px rgba(61,74,61,0.04)';
         el.style.transform = 'translateY(0)';
-        el.style.borderColor = 'rgba(107,155,107,0.08)';
       }}
     >
-      {/* Icon */}
+      {/* Book cover */}
       <div style={{
-        width: 48, height: 48, borderRadius: 12,
-        background: bgColor,
+        width: '100%',
+        aspectRatio: '3/4',
+        borderRadius: '4px 10px 10px 4px',
+        overflow: 'hidden',
+        boxShadow: '0 6px 20px rgba(61,74,61,0.12), 0 2px 4px rgba(0,0,0,0.06)',
+        transition: 'all 0.35s',
+        background: coverUrl
+          ? '#fff'
+          : `linear-gradient(160deg, hsl(${hue}, 40%, 75%) 0%, hsl(${hue}, 35%, 55%) 100%)`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 22, fontWeight: 400, color: iconColor,
-        transition: 'all 0.3s',
+        position: 'relative',
       }}>
-        {initial}
+        {/* Spine shadow line */}
+        <div style={{
+          position: 'absolute', left: 0, top: 0, bottom: 0, width: 6,
+          background: 'rgba(0,0,0,0.08)',
+          borderRadius: '3px 0 0 3px',
+        }} />
+
+        {coverUrl ? (
+          <img
+            src={coverUrl}
+            alt={name}
+            style={{
+              width: '100%', height: '100%', objectFit: 'cover',
+            }}
+          />
+        ) : (
+          /* Generated cover */
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', gap: 8, height: '100%', width: '100%',
+            padding: 16, boxSizing: 'border-box',
+          }}>
+            <div style={{
+              fontSize: 48, fontWeight: 200, color: 'rgba(255,255,255,0.85)',
+              textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            }}>
+              {initial}
+            </div>
+            <div style={{
+              fontSize: 11, color: 'rgba(255,255,255,0.6)',
+              letterSpacing: 2, writingMode: 'vertical-rl',
+            }}>
+              {name.length > 4 ? name.slice(0, 4) + '…' : name}
+            </div>
+          </div>
+        )}
+
+        {/* Book edge highlight */}
+        <div style={{
+          position: 'absolute', left: 6, top: 0, bottom: 0, width: 2,
+          background: 'rgba(255,255,255,0.15)',
+        }} />
       </div>
 
-      {/* Info */}
-      <div style={{ flex: 1 }}>
+      {/* Title below book */}
+      <div style={{ padding: '12px 2px 0', textAlign: 'center' }}>
         <div style={{
-          fontSize: 16, fontWeight: 600, color: 'var(--color-ink-green)',
+          fontSize: 14, fontWeight: 600, color: 'var(--color-ink-green)',
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          marginBottom: 4,
         }}>
           {name}
         </div>
         <div style={{
-          fontSize: 12, color: 'var(--color-ink-muted)',
+          fontSize: 11, color: 'var(--color-ink-muted)', marginTop: 2,
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
         }}>
-          {project.directory.replace(/\\/g, '/')}
+          {project.directory.replace(/\\/g, '/').split('/').filter(Boolean).slice(-2).join('/')}
         </div>
       </div>
     </div>
@@ -111,7 +152,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
       position: 'relative',
       background: 'linear-gradient(170deg, #faf8f4 0%, #f2efe8 30%, #e8e4db 60%, #dfdbd1 100%)',
     }}>
-      {/* Background pattern */}
+      {/* Background */}
       <div style={{
         position: 'absolute', inset: 0, opacity: 0.025,
         backgroundImage: `radial-gradient(circle, #6b9b6b 1px, transparent 1px)`,
@@ -202,16 +243,16 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
         </div>
       </header>
 
-      {/* Divider */}
       <div style={{
         height: 1, margin: '0 40px',
         background: 'linear-gradient(90deg, transparent, rgba(107,155,107,0.15), transparent)',
       }} />
 
-      {/* Content area */}
+      {/* Content */}
       <div style={{
         flex: 1, overflow: 'auto', padding: '36px 40px 48px',
         position: 'relative', zIndex: 1,
+        display: 'flex', flexDirection: 'column',
       }}>
         {/* Error */}
         {error && (
@@ -301,8 +342,8 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
         {/* Empty state */}
         {vaultProjects.length === 0 && !showCreate && (
           <div style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            justifyContent: 'center', padding: '80px 0', gap: 16,
+            flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+            justifyContent: 'center', gap: 16,
           }}>
             <div style={{
               width: 64, height: 64, borderRadius: 16,
@@ -344,65 +385,71 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
           </div>
         )}
 
-        {/* Novel grid */}
+        {/* Book shelf */}
         {vaultProjects.length > 0 && (
           <div style={{
+            flex: 1,
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: 18,
+            gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+            gap: 24,
+            alignContent: 'start',
           }}>
             {vaultProjects.map((project) => (
-              <NovelCard
+              <BookCard
                 key={project.directory}
                 project={project}
                 onOpen={() => handleOpen(project)}
               />
             ))}
 
-            {/* Add new card */}
+            {/* Add new card — book style */}
             <div
               onClick={() => setShowCreate(true)}
               style={{
-                background: 'rgba(255,255,255,0.35)',
-                borderRadius: 14, padding: 28,
                 cursor: 'pointer',
-                border: '2px dashed rgba(107,155,107,0.2)',
                 display: 'flex', flexDirection: 'column',
-                alignItems: 'center', justifyContent: 'center',
-                gap: 10, minHeight: 160,
                 transition: 'all 0.3s',
               }}
               onMouseEnter={(e) => {
-                const el = e.currentTarget;
-                el.style.background = 'rgba(255,255,255,0.7)';
-                el.style.borderColor = 'rgba(107,155,107,0.4)';
-                el.style.boxShadow = '0 4px 12px rgba(61,74,61,0.06)';
+                e.currentTarget.style.transform = 'translateY(-6px)';
               }}
               onMouseLeave={(e) => {
-                const el = e.currentTarget;
-                el.style.background = 'rgba(255,255,255,0.35)';
-                el.style.borderColor = 'rgba(107,155,107,0.2)';
-                el.style.boxShadow = 'none';
+                e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
               <div style={{
-                width: 44, height: 44, borderRadius: '50%',
-                background: 'linear-gradient(135deg, #6b9b6b, #5a8a5a)',
-                color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 24, fontWeight: 200,
-                boxShadow: '0 2px 8px rgba(107,155,107,0.25)',
+                width: '100%', aspectRatio: '3/4',
+                borderRadius: '4px 10px 10px 4px',
+                border: '2px dashed rgba(107,155,107,0.25)',
+                background: 'rgba(255,255,255,0.3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.3s',
               }}>
-                +
+                <div style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                }}>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #6b9b6b, #5a8a5a)',
+                    color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 24, fontWeight: 200,
+                    boxShadow: '0 2px 8px rgba(107,155,107,0.25)',
+                  }}>
+                    +
+                  </div>
+                </div>
               </div>
-              <div style={{ fontSize: 14, color: 'var(--color-ink-muted)', fontWeight: 500 }}>
-                新建作品
+              <div style={{ padding: '12px 2px 0', textAlign: 'center' }}>
+                <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-ink-muted)' }}>
+                  新建作品
+                </div>
               </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Bottom decorative bar */}
+      {/* Bottom bar */}
       <div style={{
         flexShrink: 0, padding: '12px 40px',
         borderTop: '1px solid rgba(107,155,107,0.08)',

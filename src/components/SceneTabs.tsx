@@ -3,6 +3,7 @@ export type Scene = 'writing' | 'ideation' | 'polishing' | 'analytics';
 interface SceneTabsProps {
   active: Scene;
   onChange: (scene: Scene) => void;
+  onBackToVault: () => void;
 }
 
 const tabs: { key: Scene; label: string }[] = [
@@ -12,7 +13,7 @@ const tabs: { key: Scene; label: string }[] = [
   { key: 'analytics', label: '分析' },
 ];
 
-export function SceneTabs({ active, onChange }: SceneTabsProps) {
+export function SceneTabs({ active, onChange, onBackToVault }: SceneTabsProps) {
   return (
     <nav
       style={{
@@ -21,14 +22,48 @@ export function SceneTabs({ active, onChange }: SceneTabsProps) {
         background: 'rgba(61, 74, 61, 0.92)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        padding: '0 16px',
+        padding: '0 12px',
         height: 48,
         alignItems: 'center',
-        justifyContent: 'center',
         flexShrink: 0,
         userSelect: 'none',
       }}
     >
+      {/* 返回书库 — 左侧 */}
+      <button
+        onClick={onBackToVault}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: 'rgba(255,255,255,0.7)',
+          cursor: 'pointer',
+          fontSize: 13,
+          padding: '6px 12px',
+          borderRadius: 6,
+          fontFamily: 'inherit',
+          marginRight: 8,
+          transition: 'all 0.15s',
+          whiteSpace: 'nowrap',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+          e.currentTarget.style.color = '#fff';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'none';
+          e.currentTarget.style.color = 'rgba(255,255,255,0.7)';
+        }}
+      >
+        ← 返回书库
+      </button>
+
+      {/* 分隔线 */}
+      <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.15)', marginRight: 8 }} />
+
+      {/* 中间占位 */}
+      <div style={{ flex: 1 }} />
+
+      {/* 场景标签 */}
       {tabs.map((tab) => (
         <button
           key={tab.key}

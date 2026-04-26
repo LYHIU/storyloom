@@ -10,7 +10,6 @@ export function StatusBar() {
   const content = useEditorStore((s) => s.content);
   const isDirty = useEditorStore((s) => s.isDirty);
   const isSaving = useEditorStore((s) => s.isSaving);
-  const closeProject = useProjectStore((s) => s.closeProject);
   const { isActive, elapsedSeconds, currentWords, targetWords } = useBlackRoomStore();
   const [displayWords, setDisplayWords] = useState(() => countWebNovelWords(content));
 
@@ -55,26 +54,6 @@ export function StatusBar() {
 
       {/* 右侧 */}
       <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-        <button
-          onClick={closeProject}
-          style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            fontSize: 12, color: 'var(--color-ink-muted)',
-            padding: '2px 8px', borderRadius: 4, fontFamily: 'inherit',
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.color = 'var(--color-bamboo-green)';
-            e.currentTarget.style.background = 'rgba(107,155,107,0.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.color = 'var(--color-ink-muted)';
-            e.currentTarget.style.background = 'none';
-          }}
-        >
-          ← 返回书库
-        </button>
-        <span style={{ color: 'var(--color-bamboo-green)', opacity: 0.3 }}>|</span>
         {project && (
           <span>{project.name}</span>
         )}

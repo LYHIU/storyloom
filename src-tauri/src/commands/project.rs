@@ -1,6 +1,21 @@
 use crate::models::*;
 use std::fs;
 use std::path::Path;
+use base64::Engine as _;
+
+#[tauri::command]
+pub fn read_cover(project_path: String) -> Result<Option<String>, String> {
+    for ext in &["png", "jpg", "jpeg"] {
+        let cover_path = Path::new(&project_path).join(format!("cover.{}", ext));
+        if cover_path.exists() {
+            let data = fs::read(&cover_path).map_err(|e| e.to_string())?;
+            let b64 = base64::engine::general_purpose::STANDARD.encode(&data);
+            let mime = if *ext == "png" { "image/png" } else { "image/jpeg" };
+            return Ok(Some(format!("data:{};base64,{}", mime, b64)));
+        }
+    }
+    Ok(None)
+}
 
 #[tauri::command]
 pub fn create_project(name: String, directory: String) -> Result<ProjectMeta, String> {

@@ -13,7 +13,7 @@ function App() {
   const vaultPath = useProjectStore((s) => s.vaultPath);
   const project = useProjectStore((s) => s.project);
   const vaultProjects = useProjectStore((s) => s.vaultProjects);
-  const { setVaultPath } = useProjectStore();
+  const { setVaultPath, closeProject } = useProjectStore();
   const [activeScene, setActiveScene] = useState<Scene>('writing');
 
   // On mount, check for saved vault path
@@ -46,7 +46,7 @@ function App() {
   // Screen 3: Project open → show workspace
   return (
     <div className="app-shell">
-      <SceneTabs active={activeScene} onChange={setActiveScene} />
+      <SceneTabs active={activeScene} onChange={setActiveScene} onBackToVault={closeProject} />
       <div className="scene-content">
         {renderScene()}
       </div>

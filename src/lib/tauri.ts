@@ -51,3 +51,7 @@ export async function renameChapter(filePath: string, projectPath: string, newTi
 export async function scanVault(vaultPath: string): Promise<ProjectMeta[]> {
   return invoke('scan_vault', { vaultPath });
 }
+
+export async function readCover(projectPath: string): Promise<string | null> {
+  return invoke('read_cover', { projectPath });
+}

@@ -65,6 +65,29 @@ export function Editor() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  const toolbarBtn = (label: string, title: string, action: () => void, active?: boolean) => (
+    <button
+      onClick={action}
+      title={title}
+      style={{
+        padding: '4px 10px', fontSize: 14, cursor: 'pointer',
+        border: 'none', borderRadius: 4,
+        background: active ? 'rgba(107,155,107,0.15)' : 'transparent',
+        color: active ? 'var(--color-bamboo-deep)' : 'var(--color-ink-muted)',
+        fontFamily: 'inherit', fontWeight: active ? 600 : 400,
+        transition: 'all 0.15s',
+      }}
+      onMouseEnter={(e) => {
+        if (!active) e.currentTarget.style.background = 'rgba(107,155,107,0.08)';
+      }}
+      onMouseLeave={(e) => {
+        if (!active) e.currentTarget.style.background = 'transparent';
+      }}
+    >
+      {label}
+    </button>
+  );
+
   if (!activeChapter) {
     return (
       <div style={{
@@ -92,6 +115,24 @@ export function Editor() {
         <div style={{ fontSize: 12, color: 'var(--color-ink-muted)' }}>
           {isSaving ? '保存中...' : isDirty ? '● 未保存' : '✓ 已保存'}
         </div>
+      </div>
+
+      {/* 格式工具栏 */}
+      <div style={{
+        padding: '6px 20px',
+        borderBottom: '1px solid var(--color-bamboo-white)',
+        background: 'var(--color-editor-paper)',
+        display: 'flex', gap: 2, alignItems: 'center',
+        flexWrap: 'wrap',
+      }}>
+        {editor && toolbarBtn('B', '加粗 (Ctrl+B)', () => editor.chain().focus().toggleBold().run(), editor.isActive('bold'))}
+        {editor && toolbarBtn('I', '斜体 (Ctrl+I)', () => editor.chain().focus().toggleItalic().run(), editor.isActive('italic'))}
+        <div style={{ width: 1, height: 18, background: 'var(--color-bamboo-white)', margin: '0 6px' }} />
+        {editor && toolbarBtn('H1', '一级标题', () => editor.chain().focus().toggleHeading({ level: 1 }).run(), editor.isActive('heading', { level: 1 }))}
+        {editor && toolbarBtn('H2', '二级标题', () => editor.chain().focus().toggleHeading({ level: 2 }).run(), editor.isActive('heading', { level: 2 }))}
+        {editor && toolbarBtn('H3', '三级标题', () => editor.chain().focus().toggleHeading({ level: 3 }).run(), editor.isActive('heading', { level: 3 }))}
+        <div style={{ width: 1, height: 18, background: 'var(--color-bamboo-white)', margin: '0 6px' }} />
+        {editor && toolbarBtn('¶', '正文', () => editor.chain().focus().setParagraph().run(), editor.isActive('paragraph'))}
       </div>
 
       {/* 编辑器区域 */}
