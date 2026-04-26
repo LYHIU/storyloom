@@ -9,16 +9,16 @@ interface VaultHomeProps {
 }
 
 const MACARON = [
-  'linear-gradient(160deg, #ecccd0, #d8acb2)',
-  'linear-gradient(160deg, #c0d8cc, #a4c0b0)',
-  'linear-gradient(160deg, #c0d4e8, #a4bcd8)',
-  'linear-gradient(160deg, #cec4dc, #b8accc)',
-  'linear-gradient(160deg, #ecd4c8, #d4b8a8)',
-  'linear-gradient(160deg, #e4dcc0, #d4c8a8)',
-  'linear-gradient(160deg, #c0dce8, #acccd8)',
-  'linear-gradient(160deg, #e8c8d4, #d4b0c0)',
-  'linear-gradient(160deg, #d4e0c4, #c0ceac)',
-  'linear-gradient(160deg, #ecccc8, #d4b8b0)',
+  'linear-gradient(160deg, #9AD4D9, #8BCECA)',
+  'linear-gradient(160deg, #F3D3DB, #F1A7B8)',
+  'linear-gradient(160deg, #F9EAA0, #FAE3A5)',
+  'linear-gradient(160deg, #BEDC9E, #AED0B5)',
+  'linear-gradient(160deg, #8CCA9C, #AED0B5)',
+  'linear-gradient(160deg, #D29B51, #D05165)',
+  'linear-gradient(160deg, #F7E0E5, #F1A7B8)',
+  'linear-gradient(160deg, #B5D7D7, #93C1DF)',
+  'linear-gradient(160deg, #E7E5B1, #FAE3A5)',
+  'linear-gradient(160deg, #93C1DF, #8BCECA)',
 ];
 
 function bgColor(name: string): string {
