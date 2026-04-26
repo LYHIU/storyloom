@@ -133,6 +133,34 @@ export function AiSettings({ onClose }: AiSettingsProps) {
               </button>
             ))}
           </div>
+          {/* Verified providers management */}
+          {config.verified.length > 0 && (
+            <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 11, color: 'var(--color-ink-muted)', opacity: 0.5 }}>快速切换：</span>
+              {config.verified.map((v) => {
+                const p = PROVIDERS.find((x) => x.key === v);
+                return (
+                  <span key={v} style={{
+                    padding: '2px 8px', borderRadius: 980, fontSize: 11,
+                    background: 'rgba(107,155,107,0.08)', color: 'var(--color-ink-green)',
+                    display: 'inline-flex', alignItems: 'center', gap: 4,
+                  }}>
+                    {p?.label || v}
+                    <button onClick={() => {
+                      const next = { ...config, verified: config.verified.filter((x) => x !== v) };
+                      setConfig(next);
+                      if (vaultPath) api.saveAiConfig(vaultPath, next);
+                    }}
+                      title="移除" style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        color: 'var(--color-ink-muted)', fontSize: 13, padding: 0,
+                        fontFamily: 'inherit', lineHeight: 1,
+                      }}>×</button>
+                  </span>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* 输入框 */}
