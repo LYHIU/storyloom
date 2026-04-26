@@ -392,7 +392,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
             gap: 24,
-            alignContent: 'start',
+            alignContent: 'center',
           }}>
             {vaultProjects.map((project) => (
               <BookCard
