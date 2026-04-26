@@ -63,22 +63,26 @@ export function NameWorkshop() {
 
     try {
       const reply = await api.aiChat(vaultPath, {
-        messages: [{ role: 'user', content: prompts[category] }],
+        messages: [
+          { role: 'system', content: '你是一个起名工具。只输出名字列表，每行一个名字。绝对不要输出序号、解释、标点前缀、或任何非名字的内容。只输出纯名字，每行一个。' },
+          { role: 'user', content: prompts[category] },
+        ],
         temperature: 0.9,
         max_tokens: 1024,
       });
+      console.log('[NameWorkshop] AI reply:', reply);
       const names = reply
         .split('\n')
         .map((l) => l.trim())
         .map((l) => l.replace(/^[\d]+[\.\、\)\s]+/, '').trim())
-        .filter((l) => l.length > 0 && l.length <= 20 && !/^[\(（]/.test(l));
+        .filter((l) => l.length > 0 && l.length <= 20 && !/^[\(（\-—]/.test(l));
       if (names.length === 0) {
-        setError('AI 返回了内容但未能解析出名字，请重试。原始返回: ' + reply.slice(0, 300));
+        setError('AI 返回了内容但未能解析出名字，请重试。\n原始返回: ' + reply.slice(0, 300));
       } else {
         setResults(names.slice(0, count));
       }
     } catch (e) {
-      setError(String(e));
+      setError('请求失败: ' + String(e));
     }
     setLoading(false);
   };
