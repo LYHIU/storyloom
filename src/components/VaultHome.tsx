@@ -75,7 +75,7 @@ function NovelCard({ project, onOpen, onDelete }: {
       {/* Page block — behind cover, visible on right & bottom */}
       <div style={{
         position: 'absolute',
-        left: 4, top: 0, right: -5, bottom: -6,
+        left: 4, top: 0, right: -8, bottom: -9,
         background: '#ece5d5',
         borderRadius: '0 6px 6px 0',
         zIndex: 0,
@@ -100,7 +100,7 @@ function NovelCard({ project, onOpen, onDelete }: {
       <div style={{
         position: 'relative', zIndex: 1,
         borderRadius: '0 6px 6px 0',
-        aspectRatio: '5/7',
+        aspectRatio: '3/4',
         display: 'flex', flexDirection: 'column',
         alignItems: 'flex-start',
         padding: '20px 16px 16px',
@@ -325,7 +325,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
         )}
 
         {vaultProjects.length > 0 && (
-          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 28, alignContent: 'center' }}>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 32, alignContent: 'center' }}>
             {sortedProjects.map((project) => (
               <div key={project.directory}
                 draggable={sortMode === 'manual'}
@@ -340,12 +340,12 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
               onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}>
               <div style={{
-                position: 'absolute', left: 4, top: 0, right: -5, bottom: -6,
+                position: 'absolute', left: 4, top: 0, right: -8, bottom: -9,
                 background: '#ece5d5', borderRadius: '0 6px 6px 0', zIndex: 0,
               }} />
               <div style={{
                 position: 'relative', zIndex: 1, borderRadius: '0 6px 6px 0',
-                aspectRatio: '5/7',
+                aspectRatio: '3/4',
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', padding: 24, gap: 8,
                 border: '2px dashed rgba(107,155,107,0.2)',
