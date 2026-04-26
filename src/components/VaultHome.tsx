@@ -38,8 +38,8 @@ function bgColor(name: string): string {
   return MACARON[idx];
 }
 
-function NovelCard({ project, onOpen, onDelete }: {
-  project: ProjectMeta; onOpen: () => void; onDelete: () => void;
+function NovelCard({ project, onOpen, onDelete, dragMode }: {
+  project: ProjectMeta; onOpen: () => void; onDelete: () => void; dragMode?: boolean;
 }) {
   const name = project.name;
   const initial = name.charAt(0);
@@ -122,6 +122,7 @@ function NovelCard({ project, onOpen, onDelete }: {
         display: 'flex', flexDirection: 'column',
         alignItems: 'flex-start',
         padding: '20px 16px 16px',
+        pointerEvents: dragMode ? 'none' : undefined,
         boxShadow: '0 4px 14px rgba(61,74,61,0.12), 0 1px 3px rgba(0,0,0,0.06)',
         background: coverUrl ? '#888' : bgColor(name),
         overflow: 'hidden',
@@ -371,8 +372,8 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
                 onDragOver={handleDragOver}
                 onDragEnd={() => setDragItem(null)}
                 onDrop={(e) => handleDrop(e, project.directory)}
-                style={{ cursor: sortMode === 'manual' ? 'grab' : undefined }}>
-                <NovelCard project={project} onOpen={() => handleOpen(project)} onDelete={() => handleDelete(project)} />
+                style={{ cursor: sortMode === 'manual' ? 'grab' : undefined, userSelect: sortMode === 'manual' ? 'none' : undefined }}>
+                <NovelCard project={project} onOpen={() => handleOpen(project)} onDelete={() => handleDelete(project)} dragMode={sortMode === 'manual'} />
               </div>
             ))}
             <div onClick={() => setShowCreate(true)} style={{ cursor: 'pointer', position: 'relative', transition: 'all 0.25s' }}
