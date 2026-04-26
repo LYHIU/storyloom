@@ -18,6 +18,36 @@ pub fn read_cover(project_path: String) -> Result<Option<String>, String> {
 }
 
 #[tauri::command]
+pub fn delete_project(project_path: String) -> Result<(), String> {
+    let path = Path::new(&project_path);
+    if !path.join("project.json").exists() {
+        return Err("不是有效的项目目录".into());
+    }
+    fs::remove_dir_all(path).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn set_cover(project_path: String, source_path: String) -> Result<(), String> {
+    let ext = Path::new(&source_path)
+        .extension()
+        .unwrap_or_default()
+        .to_string_lossy()
+        .to_lowercase();
+    if !matches!(ext.as_str(), "png" | "jpg" | "jpeg") {
+        return Err("只支持 png/jpg 格式".into());
+    }
+    for old_ext in &["png", "jpg", "jpeg"] {
+        let old = Path::new(&project_path).join(format!("cover.{}", old_ext));
+        if old.exists() {
+            fs::remove_file(&old).map_err(|e| e.to_string())?;
+        }
+    }
+    let dest = Path::new(&project_path).join(format!("cover.{}", ext));
+    fs::copy(&source_path, &dest).map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
 pub fn create_project(name: String, directory: String) -> Result<ProjectMeta, String> {
     let project_dir = Path::new(&directory).join(&name);
     if project_dir.exists() {

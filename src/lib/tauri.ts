@@ -55,3 +55,11 @@ export async function scanVault(vaultPath: string): Promise<ProjectMeta[]> {
 export async function readCover(projectPath: string): Promise<string | null> {
   return invoke('read_cover', { projectPath });
 }
+
+export async function setCover(projectPath: string, sourcePath: string): Promise<void> {
+  return invoke('set_cover', { projectPath, sourcePath });
+}
+
+export async function deleteProject(projectPath: string): Promise<void> {
+  return invoke('delete_project', { projectPath });
+}

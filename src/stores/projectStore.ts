@@ -15,6 +15,7 @@ interface ProjectState {
   clearVaultPath: () => void;
   scanVault: () => Promise<void>;
   createProject: (name: string) => Promise<void>;
+  deleteProject: (projectPath: string) => Promise<void>;
   openProject: (path: string) => Promise<void>;
   closeProject: () => void;
   loadChapters: () => Promise<void>;
@@ -71,6 +72,17 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       await get().loadChapters();
       // Refresh vault list in background
       get().scanVault();
+    } catch (e) {
+      set({ error: String(e), isLoading: false });
+    }
+  },
+
+  deleteProject: async (projectPath) => {
+    set({ isLoading: true, error: null });
+    try {
+      await api.deleteProject(projectPath);
+      await get().scanVault();
+      set({ isLoading: false });
     } catch (e) {
       set({ error: String(e), isLoading: false });
     }
