@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
 import * as api from '../../lib/tauri';
 import type { AiConfig } from '../../lib/tauri';
@@ -26,6 +26,7 @@ export function NameWorkshop() {
   const [count, setCount] = useState(10);
   const [extra, setExtra] = useState('');
   const [loading, setLoading] = useState(false);
+  const abortRef = useRef(false);
   const [results, setResults] = useState<string[]>([]);
   const [saved, setSaved] = useState<Set<string>>(new Set());
   const [error, setError] = useState('');
@@ -53,6 +54,7 @@ export function NameWorkshop() {
 
   const generate = async () => {
     if (!vaultPath) return;
+    abortRef.current = false;
     setLoading(true);
     setError('');
     setResults([]);
@@ -86,14 +88,21 @@ export function NameWorkshop() {
         .map((l) => l.trim())
         .map((l) => l.replace(/^[\d]+[\.\、\)\s]+/, '').trim())
         .filter((l) => l.length > 0 && l.length <= 20 && !/^[\(（\-—]/.test(l));
+      if (abortRef.current) return;
       if (names.length === 0) {
         setError('AI 返回了内容但未能解析出名字，请重试。\n原始返回: ' + reply.slice(0, 300));
       } else {
         setResults(names.slice(0, count));
       }
     } catch (e) {
+      if (abortRef.current) return;
       setError('请求失败: ' + String(e));
     }
+    setLoading(false);
+  };
+
+  const stopGenerate = () => {
+    abortRef.current = true;
     setLoading(false);
   };
 
@@ -153,15 +162,22 @@ export function NameWorkshop() {
             }} />
         </div>
 
-        <button onClick={generate} disabled={loading}
-          style={{
-            padding: '10px 32px', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
-            border: 'none', borderRadius: 980, color: '#fff',
-            background: 'linear-gradient(135deg, var(--color-accent-yellow), #d4b040)',
-            boxShadow: '0 3px 10px rgba(232,197,96,0.3)', transition: 'all 0.2s',
-          }}>
-          {loading ? '生成中...' : '✨ ' + current.btn}
-        </button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button onClick={loading ? stopGenerate : generate}
+            style={{
+              padding: '10px 32px', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
+              border: 'none', borderRadius: 980, color: '#fff',
+              background: loading
+                ? 'var(--color-accent-orange)'
+                : 'linear-gradient(135deg, var(--color-accent-yellow), #d4b040)',
+              boxShadow: loading
+                ? '0 3px 10px rgba(240,160,96,0.3)'
+                : '0 3px 10px rgba(232,197,96,0.3)',
+              transition: 'all 0.2s',
+            }}>
+            {loading ? '⏹ 停止生成' : '✨ ' + current.btn}
+          </button>
+        </div>
         {aiConfig && aiConfig.enabled && aiConfig.verified.length > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4, marginBottom: 16 }}>
             <span style={{ fontSize: 11, color: 'var(--color-ink-muted)', opacity: 0.5 }}>模型</span>
