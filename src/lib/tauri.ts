@@ -80,6 +80,7 @@ export interface AiConfig {
   base_url: string;
   api_key: string;
   model: string;
+  verified: string[];
 }
 
 export interface ChatMessage {

@@ -9,6 +9,8 @@ pub struct AiConfig {
     pub base_url: String,
     pub api_key: String,
     pub model: String,
+    #[serde(default)]
+    pub verified: Vec<String>,
 }
 
 impl Default for AiConfig {
@@ -19,6 +21,7 @@ impl Default for AiConfig {
             base_url: "https://api.openai.com/v1".into(),
             api_key: String::new(),
             model: "gpt-4o-mini".into(),
+            verified: Vec::new(),
         }
     }
 }

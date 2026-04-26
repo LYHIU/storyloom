@@ -162,11 +162,11 @@ export function NameWorkshop() {
           }}>
           {loading ? '生成中...' : '✨ ' + current.btn}
         </button>
-        {aiConfig && aiConfig.enabled && (
+        {aiConfig && aiConfig.enabled && aiConfig.verified.length > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4, marginBottom: 16 }}>
             <span style={{ fontSize: 11, color: 'var(--color-ink-muted)', opacity: 0.5 }}>模型</span>
             <div style={{ display: 'flex', gap: 2, background: 'rgba(0,0,0,0.04)', borderRadius: 980, padding: 2 }}>
-              {PRESETS.map((p) => {
+              {PRESETS.filter(p => aiConfig.verified.includes(p.key)).map((p) => {
                 const active = aiConfig.provider === p.key;
                 return (
                   <button key={p.key} onClick={() => switchModel(p.key, p.url, p.model)}

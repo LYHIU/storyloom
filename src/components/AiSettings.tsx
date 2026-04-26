@@ -9,6 +9,7 @@ const DEFAULT_CONFIG: AiConfig = {
   base_url: 'https://api.deepseek.com/v1',
   api_key: '',
   model: 'deepseek-v4-flash',
+  verified: [],
 };
 
 const PROVIDERS: { key: string; label: string; defaultUrl: string; defaultModel: string }[] = [
@@ -47,8 +48,13 @@ export function AiSettings({ onClose }: AiSettingsProps) {
     setTesting(true);
     setTestResult(null);
     try {
-      // Save config first
-      await api.saveAiConfig(vaultPath, { ...config, enabled: true });
+      // Save config first, mark as verified
+      const updated = {
+        ...config, enabled: true,
+        verified: config.verified.includes(config.provider) ? config.verified : [...config.verified, config.provider],
+      };
+      await api.saveAiConfig(vaultPath, updated);
+      setConfig(updated);
       const reply = await api.aiChat(vaultPath, {
         messages: [{ role: 'user', content: '你好，请回复"连接成功"' }],
         temperature: 0.1,
