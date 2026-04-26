@@ -152,7 +152,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
 
         <div style={{ display: 'flex', gap: 8 }}>
           <button
-            onClick={() => { if (window.confirm('退出书库将返回首页，书库路径会被清除。确定？')) clearVaultPath(); }}
+            onClick={() => { if (window.confirm('返回首页将清除书库路径，确定？')) clearVaultPath(); }}
             style={{
               padding: '8px 16px', fontSize: 12, cursor: 'pointer',
               border: '1px solid rgba(211,47,47,0.15)', borderRadius: 980,
@@ -172,7 +172,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
               e.currentTarget.style.color = 'var(--color-ink-muted)';
             }}
           >
-            退出书库
+            回到首页
           </button>
           <button
             onClick={handleSwitchVault}
