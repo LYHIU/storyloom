@@ -120,9 +120,9 @@ function NovelCard({ project, onOpen, onDelete }: {
 
         {/* Spine */}
         <div style={{
-          position: 'absolute', left: 0, top: 0, bottom: 0, width: 4, zIndex: 3,
-          background: 'linear-gradient(90deg, rgba(0,0,0,0.18), rgba(0,0,0,0.05) 50%, transparent)',
-          borderRadius: '2px 0 0 2px',
+          position: 'absolute', left: 0, top: 0, bottom: 0, width: 6, zIndex: 3,
+          background: 'linear-gradient(90deg, rgba(0,0,0,0.2), rgba(0,0,0,0.08) 40%, transparent 80%)',
+          borderRadius: '3px 0 0 3px',
         }} />
 
         {/* Delete */}
@@ -143,15 +143,15 @@ function NovelCard({ project, onOpen, onDelete }: {
 
         {/* Seal — top-left */}
         <div style={{
-          width: 52, height: 52, borderRadius: '50%',
+          width: 60, height: 60, borderRadius: '50%',
           marginBottom: 20, marginTop: 4,
-          border: '1.2px solid rgba(255,255,255,0.35)',
+          border: '1.5px solid rgba(255,255,255,0.35)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.06)',
           position: 'relative', zIndex: 2,
         }}>
           <span style={{
-            fontSize: 28, fontWeight: 400, color: 'rgba(255,255,255,0.82)',
+            fontSize: 32, fontWeight: 400, color: 'rgba(255,255,255,0.82)',
             textShadow: '0 -1px 0 rgba(255,255,255,0.3), 0 2px 3px rgba(0,0,0,0.08)',
             lineHeight: 1,
           }}>{initial}</span>
@@ -176,9 +176,9 @@ function NovelCard({ project, onOpen, onDelete }: {
             onClick={handleStartRename}
             title="点击重命名"
             style={{
-              fontSize: 14, fontWeight: 600, color: '#3d4a3d',
+              fontSize: 14, fontWeight: 400, color: '#3d4a3d',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-              maxWidth: '100%', cursor: 'text', letterSpacing: 0.5,
+              maxWidth: '100%', cursor: 'text', letterSpacing: 1,
               textAlign: 'left',
               position: 'relative', zIndex: 2,
             }}
@@ -325,7 +325,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
         )}
 
         {vaultProjects.length > 0 && (
-          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 32, alignContent: 'center' }}>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 36, alignContent: 'center' }}>
             {sortedProjects.map((project) => (
               <div key={project.directory}
                 draggable={sortMode === 'manual'}
