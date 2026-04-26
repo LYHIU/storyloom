@@ -88,7 +88,10 @@ src/
     │       ├── OutlineSidebar.tsx    # Chapter tree, drag to reorder, inline rename
     │       ├── BlackRoom.tsx         # Focus mode overlay with timer/progress
     │       └── StatusBar.tsx         # Word count, save status, 返回书库, 小黑屋
-    ├── ideation/IdeationSpace.tsx    # Placeholder for 构思空间 (Phase 2)
+    ├── ideation/
+    │   ├── IdeationSpace.tsx         # 构思空间 tabs: 起名/情节/人设/世界观
+    │   ├── NameWorkshop.tsx          # AI-assisted name generator
+    │   └── CharacterCards.tsx        # Character files, relationships, conflict seeds
     ├── polishing/PolishingSpace.tsx  # Placeholder for 润色空间 (Phase 2)
     └── analytics/AnalyticsSpace.tsx  # Placeholder for 分析空间 (Phase 2)
 ```
@@ -99,6 +102,7 @@ Each novel is a directory:
 ```
 {novel-name}/
 ├── project.json    # { "volumes": ["未分类"], "chapter_order": ["ch-123", ...] }
+├── characters.json # character cards, relationship edges, conflict seeds
 └── chapters/
     ├── ch-123.md
     ├── ch-456.md

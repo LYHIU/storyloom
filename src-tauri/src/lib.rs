@@ -24,6 +24,8 @@ pub fn run() {
             commands::ai::get_ai_config,
             commands::ai::save_ai_config,
             commands::ai::ai_chat,
+            commands::ideation::read_character_board,
+            commands::ideation::save_character_board,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

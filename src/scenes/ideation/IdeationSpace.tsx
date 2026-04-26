@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { NameWorkshop } from './NameWorkshop';
+import { CharacterCards } from './CharacterCards';
 
 type IdeationTab = 'name' | 'plot' | 'character' | 'world';
 
@@ -40,7 +41,7 @@ export function IdeationSpace() {
       <div style={{ flex: 1, overflow: 'hidden' }}>
         {tab === 'name' && <NameWorkshop />}
         {tab === 'plot' && <Placeholder text="情节图谱" />}
-        {tab === 'character' && <Placeholder text="人设卡片" />}
+        {tab === 'character' && <CharacterCards />}
         {tab === 'world' && <Placeholder text="世界观画布" />}
       </div>
     </div>

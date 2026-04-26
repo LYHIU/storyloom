@@ -105,3 +105,83 @@ export async function saveAiConfig(vaultPath: string, config: AiConfig): Promise
 export async function aiChat(vaultPath: string, request: ChatRequest): Promise<string> {
   return invoke('ai_chat', { vaultPath, request });
 }
+
+// —— 构思 / 人设 ——
+
+export type CharacterRole = 'protagonist' | 'supporting' | 'antagonist' | 'minor';
+export type ConflictStatus = 'seed' | 'used' | 'archived';
+
+export interface CharacterField {
+  id: string;
+  label: string;
+  value: string;
+  kind: 'short' | 'long';
+}
+
+export interface CharacterCard {
+  id: string;
+  name: string;
+  aliases: string[];
+  role: CharacterRole;
+  color: string;
+  importance: number;
+  fields: CharacterField[];
+  chapterIds: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CharacterRelationship {
+  id: string;
+  fromId: string;
+  toId: string;
+  type: string;
+  surface: string;
+  truth: string;
+  tension: string;
+  power: string;
+  emotion: string;
+  stage: string;
+  notes: string;
+  updatedAt: string;
+}
+
+export interface ConflictSeed {
+  id: string;
+  title: string;
+  characterIds: string[];
+  relationshipIds: string[];
+  premise: string;
+  pressure: string;
+  possibleTurn: string;
+  reverseQuestion: string;
+  status: ConflictStatus;
+  updatedAt: string;
+}
+
+export interface CharacterBoard {
+  version: 1;
+  updatedAt: string;
+  characters: CharacterCard[];
+  relationships: CharacterRelationship[];
+  conflicts: ConflictSeed[];
+}
+
+export async function readCharacterBoard(projectPath: string): Promise<CharacterBoard> {
+  const raw = await invoke<string>('read_character_board', { projectPath });
+  const parsed = JSON.parse(raw) as CharacterBoard;
+  return {
+    version: 1,
+    updatedAt: parsed.updatedAt || '',
+    characters: parsed.characters || [],
+    relationships: parsed.relationships || [],
+    conflicts: parsed.conflicts || [],
+  };
+}
+
+export async function saveCharacterBoard(projectPath: string, board: CharacterBoard): Promise<void> {
+  return invoke('save_character_board', {
+    projectPath,
+    content: JSON.stringify(board, null, 2),
+  });
+}
