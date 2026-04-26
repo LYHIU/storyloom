@@ -253,6 +253,11 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('name');
+  const [sortAsc, setSortAsc] = useState(true);
+
+  const handleSortClick = (mode: SortMode) => {
+    if (mode === sortMode) { setSortAsc(!sortAsc); } else { setSortMode(mode); setSortAsc(true); }
+  };
   const [dragItem, setDragItem] = useState<string | null>(null);
 
   const handleSwitchVault = async () => {
@@ -269,8 +274,9 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
 
   const sortedProjects = (() => {
     const projects = [...vaultProjects];
-    if (sortMode === 'name') return projects.sort((a, b) => a.name.localeCompare(b.name));
-    if (sortMode === 'created') return projects.sort((a, b) => b.created_at.localeCompare(a.created_at));
+    const dir = sortAsc ? 1 : -1;
+    if (sortMode === 'name') return projects.sort((a, b) => dir * a.name.localeCompare(b.name));
+    if (sortMode === 'created') return projects.sort((a, b) => dir * b.created_at.localeCompare(a.created_at));
     const order = vaultPath ? loadManualOrder(vaultPath) : [];
     const known = new Set(order);
     const ordered = order.map(id => projects.find(p => p.directory === id)).filter(Boolean) as typeof projects;
@@ -307,10 +313,29 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
           )}
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <select value={sortMode} onChange={(e) => setSortMode(e.target.value as SortMode)}
-            style={{ padding: '6px 10px', fontSize: 12, cursor: 'pointer', border: '1px solid rgba(107,155,107,0.2)', borderRadius: 980, background: 'rgba(255,255,255,0.4)', color: 'var(--color-ink-muted)', fontFamily: 'inherit', outline: 'none' }}>
-            <option value="name">按名称</option><option value="created">按时间</option><option value="manual">手动排序</option>
-          </select>
+          <div style={{ display: 'flex', gap: 2, background: 'rgba(255,255,255,0.3)', borderRadius: 980, padding: 2 }}>
+            {[
+              ['name', '名称'] as const,
+              ['created', '时间'] as const,
+              ['manual', '手动'] as const,
+            ].map(([key, label]) => {
+              const active = sortMode === key;
+              const arrow = active ? (sortAsc ? ' ↑' : ' ↓') : '';
+              return (
+                <button key={key} onClick={() => handleSortClick(key)}
+                  style={{
+                    padding: '5px 12px', fontSize: 12, cursor: 'pointer',
+                    border: 'none', borderRadius: 980,
+                    background: active ? 'var(--color-bamboo-green)' : 'transparent',
+                    color: active ? '#fff' : 'var(--color-ink-muted)',
+                    fontFamily: 'inherit', transition: 'all 0.15s',
+                    fontWeight: active ? 500 : 400,
+                  }}>
+                  {label}{arrow}
+                </button>
+              );
+            })}
+          </div>
           <button onClick={() => { if (window.confirm('返回首页将清除书库路径，确定？')) clearVaultPath(); }}
             style={{ padding: '8px 16px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', border: '1px solid rgba(211,47,47,0.15)', borderRadius: 980, background: 'rgba(255,255,255,0.4)', color: 'var(--color-ink-muted)', boxShadow: '0 1px 3px rgba(61,74,61,0.04)', transition: 'all 0.2s' }}
             onMouseEnter={(e) => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'rgba(211,47,47,0.3)'; e.currentTarget.style.color = '#d32f2f'; }}
