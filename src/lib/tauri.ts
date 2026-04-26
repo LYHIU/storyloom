@@ -63,3 +63,7 @@ export async function setCover(projectPath: string, sourcePath: string): Promise
 export async function deleteProject(projectPath: string): Promise<void> {
   return invoke('delete_project', { projectPath });
 }
+
+export async function renameProject(projectPath: string, newName: string): Promise<string> {
+  return invoke('rename_project', { projectPath, newName });
+}

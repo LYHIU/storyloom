@@ -48,6 +48,21 @@ pub fn set_cover(project_path: String, source_path: String) -> Result<(), String
 }
 
 #[tauri::command]
+pub fn rename_project(project_path: String, new_name: String) -> Result<String, String> {
+    let path = Path::new(&project_path);
+    if !path.join("project.json").exists() {
+        return Err("不是有效的项目目录".into());
+    }
+    let parent = path.parent().ok_or("无效路径")?;
+    let new_path = parent.join(&new_name);
+    if new_path.exists() {
+        return Err("同名目录已存在".into());
+    }
+    fs::rename(path, &new_path).map_err(|e| e.to_string())?;
+    Ok(new_path.to_string_lossy().to_string())
+}
+
+#[tauri::command]
 pub fn create_project(name: String, directory: String) -> Result<ProjectMeta, String> {
     let project_dir = Path::new(&directory).join(&name);
     if project_dir.exists() {

@@ -34,6 +34,32 @@ function NovelCard({ project, onOpen, onDelete }: {
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [delConfirm, setDelConfirm] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [editValue, setEditValue] = useState(name);
+
+  const handleStartRename = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditValue(name);
+    setEditingName(true);
+  };
+
+  const handleRenameKey = (e: React.KeyboardEvent) => {
+    e.stopPropagation();
+    if (e.key === 'Escape') { setEditingName(false); return; }
+    if (e.key === 'Enter') commitRename();
+  };
+
+  const handleRenameBlur = () => {
+    commitRename();
+  };
+
+  const commitRename = async () => {
+    setEditingName(false);
+    if (editValue.trim() && editValue.trim() !== name) {
+      await api.renameProject(project.directory, editValue.trim());
+      useProjectStore.getState().scanVault();
+    }
+  };
 
   useEffect(() => {
     api.readCover(project.directory).then(setCoverUrl).catch(() => setCoverUrl(null));
@@ -106,7 +132,7 @@ function NovelCard({ project, onOpen, onDelete }: {
         <div style={{
           margin: '20px 14px 8px 30px',
           borderRadius: 3, overflow: 'hidden',
-          aspectRatio: '2/3',
+          aspectRatio: '3/2',
           boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
           background: coverUrl ? '#e0e0e0' : bgColor(name),
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -154,12 +180,36 @@ function NovelCard({ project, onOpen, onDelete }: {
           padding: '0 14px 12px 30px',
           display: 'flex', alignItems: 'center', gap: 8,
         }}>
-          <span style={{
-            flex: 1, fontSize: 13, fontWeight: 500, color: 'var(--color-ink-green)',
-            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          }}>
-            {name}
-          </span>
+          {editingName ? (
+            <input
+              type="text"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              onKeyDown={handleRenameKey}
+              onBlur={handleRenameBlur}
+              autoFocus
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                flex: 1, width: 0,
+                padding: '2px 6px', fontSize: 13,
+                border: '1px solid var(--color-bamboo-green)', borderRadius: 4,
+                outline: 'none', fontFamily: 'inherit', color: 'var(--color-ink-green)',
+                background: '#fff',
+              }}
+            />
+          ) : (
+            <span
+              onClick={handleStartRename}
+              title="点击重命名"
+              style={{
+                flex: 1, fontSize: 13, fontWeight: 500, color: 'var(--color-ink-green)',
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                cursor: 'text',
+              }}
+            >
+              {name}
+            </span>
+          )}
           <button
             onClick={handleDelete}
             title={delConfirm ? '再次点击确认删除' : '删除作品'}
