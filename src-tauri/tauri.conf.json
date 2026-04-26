@@ -13,8 +13,8 @@
     "windows": [
       {
         "title": "书织 StoryLoom",
-        "width": 1200,
-        "height": 800,
+        "width": 960,
+        "height": 660,
         "resizable": true,
         "fullscreen": false
       }
