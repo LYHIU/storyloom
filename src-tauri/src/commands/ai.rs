@@ -76,7 +76,30 @@ pub async fn ai_chat(vault_path: String, request: ChatRequest) -> Result<String,
         return Err("未配置 API 地址".into());
     }
 
+    let is_ollama = config.provider == "ollama";
     let client = reqwest::Client::new();
+
+    if is_ollama {
+        // Ollama native API
+        let body = serde_json::json!({
+            "model": config.model,
+            "messages": request.messages,
+            "stream": false,
+        });
+        let url = format!("{}/api/chat", config.base_url.trim_end_matches('/'));
+        let resp = client.post(&url)
+            .json(&body)
+            .send().await.map_err(|e| format!("Ollama 请求失败: {}", e))?;
+        let text = resp.text().await.map_err(|e| format!("读取响应失败: {}", e))?;
+        eprintln!("[AI] Ollama raw: {}", &text[..text.len().min(500)]);
+        let json: serde_json::Value = serde_json::from_str(&text)
+            .map_err(|e| format!("解析失败: {}", e))?;
+        let content = json["message"]["content"].as_str()
+            .ok_or_else(|| format!("未获取到回复: {}", &text[..text.len().min(300)]))?;
+        return Ok(content.to_string());
+    }
+
+    // OpenAI-compatible API
     let body = serde_json::json!({
         "model": config.model,
         "messages": request.messages,
@@ -84,7 +107,6 @@ pub async fn ai_chat(vault_path: String, request: ChatRequest) -> Result<String,
         "max_tokens": request.max_tokens,
         "stream": false,
     });
-
     let url = format!("{}/chat/completions", config.base_url.trim_end_matches('/'));
     let mut req = client.post(&url)
         .header("Content-Type", "application/json")
