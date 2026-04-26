@@ -24,6 +24,7 @@ export function NameWorkshop() {
   const [gender, setGender] = useState('不限');
   const [style, setStyle] = useState('不限');
   const [count, setCount] = useState(10);
+  const [lang, setLang] = useState<'zh' | 'en'>('zh');
   const [extra, setExtra] = useState('');
   const [loading, setLoading] = useState(false);
   const genIdRef = useRef(0);
@@ -60,24 +61,29 @@ export function NameWorkshop() {
     setError('');
     setResults([]);
 
-    const basePrompt = (thing: string) =>
-      `生成${count}个${style === '不限' ? '' : style}风格的${thing}。${extra ? '额外要求：' + extra : ''}。严格每行一个结果，不要序号前缀，不要任何解释说明，直接输出结果列表。`;
+    const isEn = lang === 'en';
+    const basePrompt = (thing: string, thingEn: string) =>
+      isEn
+        ? `Generate ${count} ${style === '不限' ? '' : style} style ${thingEn}. ${extra ? 'Additional requirements: ' + extra : ''} One result per line, no numbering, no explanations, just the names.`
+        : `生成${count}个${style === '不限' ? '' : style}风格的${thing}。${extra ? '额外要求：' + extra : ''}。严格每行一个结果，不要序号前缀，不要任何解释说明，直接输出结果列表。`;
 
     const prompts: Record<NameCategory, string> = {
-      character: basePrompt(`角色名字，性别${gender}`),
-      place: basePrompt('地名'),
-      technique: basePrompt('功法或技能名称'),
-      faction: basePrompt('帮派、宗门或组织名称'),
-      weapon: basePrompt('武器或法宝名称'),
-      title: basePrompt('人物称号或昵称'),
-      book: basePrompt('小说书名'),
-      chapter: basePrompt('网文章节标题'),
+      character: basePrompt(`角色名字，性别${isEn ? gender === '男' ? 'male' : gender === '女' ? 'female' : 'any' : gender}`, `character names, gender ${gender === '男' ? 'male' : gender === '女' ? 'female' : 'any'}`),
+      place: basePrompt('地名', 'place names'),
+      technique: basePrompt('功法或技能名称', 'technique/skill names'),
+      faction: basePrompt('帮派、宗门或组织名称', 'faction/organization names'),
+      weapon: basePrompt('武器或法宝名称', 'weapon/artifact names'),
+      title: basePrompt('人物称号或昵称', 'character titles or nicknames'),
+      book: basePrompt('小说书名', 'novel/book titles'),
+      chapter: basePrompt('网文章节标题', 'web novel chapter titles'),
     };
 
     try {
       const reply = await api.aiChat(vaultPath, {
         messages: [
-          { role: 'system', content: '你是一个起名工具。只输出名字列表，每行一个名字。绝对不要输出序号、解释、标点前缀、或任何非名字的内容。只输出纯名字，每行一个。' },
+          { role: 'system', content: isEn
+            ? 'You are a name generator. Output only names, one per line. Never include numbering, explanations, prefix punctuation, or anything other than the names themselves.'
+            : '你是一个起名工具。只输出名字列表，每行一个名字。绝对不要输出序号、解释、标点前缀、或任何非名字的内容。只输出纯名字，每行一个。' },
           { role: 'user', content: prompts[category] },
         ],
         temperature: 0.9,
@@ -144,6 +150,18 @@ export function NameWorkshop() {
               <Select value={gender} options={['男', '女', '不限']} onChange={setGender} />
             </Row>
           )}
+          <Row label="语言">
+            <div style={{ display: 'flex', gap: 2, background: 'rgba(0,0,0,0.04)', borderRadius: 980, padding: 2 }}>
+              <button onClick={() => setLang('zh')}
+                style={{ padding: '4px 12px', fontSize: 12, border: 'none', borderRadius: 980, cursor: 'pointer', fontFamily: 'inherit', background: lang === 'zh' ? 'var(--color-bamboo-green)' : 'transparent', color: lang === 'zh' ? '#fff' : 'var(--color-ink-muted)' }}>
+                中文
+              </button>
+              <button onClick={() => setLang('en')}
+                style={{ padding: '4px 12px', fontSize: 12, border: 'none', borderRadius: 980, cursor: 'pointer', fontFamily: 'inherit', background: lang === 'en' ? 'var(--color-bamboo-green)' : 'transparent', color: lang === 'en' ? '#fff' : 'var(--color-ink-muted)' }}>
+                English
+              </button>
+            </div>
+          </Row>
           <Row label="风格">
             <Select value={style} options={STYLES} onChange={setStyle} />
           </Row>
