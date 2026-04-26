@@ -28,8 +28,7 @@ pub fn scan_vault(vault_path: String) -> Result<Vec<ProjectMeta>, String> {
 
         let created_at = fs::metadata(&path)
             .ok()
-            .and_then(|m| m.modified().ok())
-            .or_else(|| m.created().ok())
+            .and_then(|m| m.modified().or_else(|_| m.created()).ok())
             .unwrap_or(SystemTime::UNIX_EPOCH)
             .duration_since(SystemTime::UNIX_EPOCH)
             .map(|d| d.as_secs().to_string())
