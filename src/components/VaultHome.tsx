@@ -46,24 +46,29 @@ function bgColor(name: string): string {
   return MACARON[idx];
 }
 
-function SortableNovelCard({ project, onOpen, onDelete, disabled }: {
+function SortableNovelCard({ project, onOpen, onDelete, disabled, selectMode, selected, onToggleSelect }: {
   project: ProjectMeta; onOpen: () => void; onDelete: () => void; disabled: boolean;
+  selectMode?: boolean; selected?: boolean; onToggleSelect?: () => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: project.directory, disabled });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: project.directory, disabled });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     touchAction: 'none',
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : 1,
   };
   return (
     <div ref={setNodeRef} style={style} {...(disabled ? {} : attributes)} {...(disabled ? {} : listeners)}>
-      <NovelCard project={project} onOpen={onOpen} onDelete={onDelete} />
+      <NovelCard project={project} onOpen={onOpen} onDelete={onDelete}
+        selectMode={selectMode} selected={selected} onToggleSelect={onToggleSelect} />
     </div>
   );
 }
 
-function NovelCard({ project, onOpen, onDelete }: {
+function NovelCard({ project, onOpen, onDelete, selectMode, selected, onToggleSelect }: {
   project: ProjectMeta; onOpen: () => void; onDelete: () => void;
+  selectMode?: boolean; selected?: boolean; onToggleSelect?: () => void;
 }) {
   const name = project.name;
   const initial = name.charAt(0);
@@ -108,12 +113,28 @@ function NovelCard({ project, onOpen, onDelete }: {
   };
 
   return (
+    <>
     <div
-      onClick={onOpen}
-      style={{ cursor: 'pointer', position: 'relative', transition: 'all 0.25s' }}
-      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; setHovered(true); }}
-      onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; setHovered(false); }}
+      onClick={selectMode ? onToggleSelect : onOpen}
+      style={{ cursor: selectMode ? 'default' : 'pointer', position: 'relative', transition: 'all 0.25s' }}
+      onMouseEnter={(e) => { if (!selectMode) e.currentTarget.style.transform = 'translateY(-4px)'; setHovered(true); }}
+      onMouseLeave={(e) => { if (!selectMode) e.currentTarget.style.transform = 'translateY(0)'; setHovered(false); }}
     >
+      {/* Select checkbox overlay */}
+      {selectMode && (
+        <div style={{
+          position: 'absolute', top: 8, left: 8, zIndex: 10,
+          width: 22, height: 22, borderRadius: 6,
+          background: selected ? 'var(--color-bamboo-green)' : 'rgba(255,255,255,0.8)',
+          border: selected ? 'none' : '2px solid rgba(107,155,107,0.3)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: '#fff', fontSize: 13, fontWeight: 700,
+          boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
+        }}>
+          {selected ? '✓' : ''}
+        </div>
+      )}
+
       {/* Page block — behind cover, visible on right & bottom */}
       <div style={{
         position: 'absolute',
@@ -259,6 +280,20 @@ function NovelCard({ project, onOpen, onDelete }: {
         )}
       </div>
     </div>
+
+    {/* Title below the book — visible when cover image makes on-cover title hard to read */}
+    <div style={{
+      padding: '8px 4px 0', textAlign: 'center',
+    }}>
+      <span style={{
+        fontSize: 12, fontWeight: 500, color: 'var(--color-ink-green)',
+        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        display: 'block', maxWidth: '100%',
+      }}>
+        {name}
+      </span>
+    </div>
+    </>
   );
 }
 
@@ -277,6 +312,9 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
   const [newName, setNewName] = useState('');
   const [sortMode, setSortMode] = useState<SortMode>('name');
   const [sortAsc, setSortAsc] = useState(true);
+  const [manualVersion, setManualVersion] = useState(0); // bump to force recompute after drag
+  const [selectMode, setSelectMode] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const handleSortClick = (mode: SortMode) => {
     if (mode === sortMode) { setSortAsc(!sortAsc); } else { setSortMode(mode); setSortAsc(true); }
@@ -293,6 +331,23 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
     order.splice(fromIdx, 1);
     order.splice(toIdx, 0, active.id as string);
     if (vaultPath) saveManualOrder(vaultPath, order);
+    setManualVersion(v => v + 1); // trigger recompute
+  };
+
+  const toggleSelect = (dir: string) => {
+    const next = new Set(selected);
+    if (next.has(dir)) next.delete(dir); else next.add(dir);
+    setSelected(next);
+  };
+
+  const handleBatchDelete = async () => {
+    if (selected.size === 0 || !window.confirm(`确定删除选中的 ${selected.size} 部作品？此操作不可撤销。`)) return;
+    for (const dir of selected) {
+      await deleteProject(dir);
+    }
+    setSelected(new Set());
+    setSelectMode(false);
+    await scanVault();
   };
 
   const handleSwitchVault = async () => {
@@ -308,6 +363,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
   const handleDelete = async (project: ProjectMeta) => { await deleteProject(project.directory); await scanVault(); };
 
   const sortedProjects = (() => {
+    void manualVersion; // re-compute after drag
     const projects = [...vaultProjects];
     const dir = sortAsc ? 1 : -1;
     if (sortMode === 'name') return projects.sort((a, b) => dir * a.name.localeCompare(b.name));
@@ -336,6 +392,26 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
           )}
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {selectMode ? (
+            <>
+              <span style={{ fontSize: 12, color: 'var(--color-ink-muted)' }}>已选 {selected.size} 部</span>
+              <button onClick={handleBatchDelete} disabled={selected.size === 0}
+                style={{ padding: '6px 14px', fontSize: 12, cursor: selected.size ? 'pointer' : 'default', fontFamily: 'inherit', border: 'none', borderRadius: 980, background: selected.size ? '#d32f2f' : 'rgba(211,47,47,0.3)', color: '#fff', transition: 'all 0.15s' }}>
+                删除选中
+              </button>
+              <button onClick={() => { setSelectMode(false); setSelected(new Set()); }}
+                style={{ padding: '6px 14px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', border: '1px solid rgba(107,155,107,0.2)', borderRadius: 980, background: 'rgba(255,255,255,0.4)', color: 'var(--color-ink-muted)' }}>
+                取消
+              </button>
+            </>
+          ) : (
+            <button onClick={() => setSelectMode(true)}
+              style={{ padding: '6px 14px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', border: '1px solid rgba(107,155,107,0.2)', borderRadius: 980, background: 'rgba(255,255,255,0.4)', color: 'var(--color-ink-muted)', transition: 'all 0.15s' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = 'var(--color-ink-green)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.4)'; e.currentTarget.style.color = 'var(--color-ink-muted)'; }}>
+              批量选择
+            </button>
+          )}
           <div style={{ display: 'flex', gap: 2, background: 'rgba(255,255,255,0.3)', borderRadius: 980, padding: 2 }}>
             {[
               ['name', '名称'] as const,
@@ -343,7 +419,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
               ['manual', '手动'] as const,
             ].map(([key, label]) => {
               const active = sortMode === key;
-              const arrow = active ? (sortAsc ? ' ↑' : ' ↓') : '';
+              const arrow = active && key !== 'manual' ? (sortAsc ? ' ↑' : ' ↓') : '';
               return (
                 <button key={key} onClick={() => handleSortClick(key)}
                   style={{
@@ -419,6 +495,9 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
                     onOpen={() => handleOpen(project)}
                     onDelete={() => handleDelete(project)}
                     disabled={sortMode !== 'manual'}
+                    selectMode={selectMode}
+                    selected={selected.has(project.directory)}
+                    onToggleSelect={() => toggleSelect(project.directory)}
                   />
                 ))}
             <div onClick={() => setShowCreate(true)} style={{ cursor: 'pointer', position: 'relative', transition: 'all 0.25s' }}
