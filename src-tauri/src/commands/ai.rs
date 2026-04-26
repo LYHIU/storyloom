@@ -99,14 +99,19 @@ pub async fn ai_chat(vault_path: String, request: ChatRequest) -> Result<String,
     if !resp.status().is_success() {
         let status = resp.status();
         let text = resp.text().await.unwrap_or_default();
+        eprintln!("[AI] API error {}: {}", status, text);
         return Err(format!("API 返回错误 ({}): {}", status, text));
     }
 
-    let json: serde_json::Value = resp.json().await.map_err(|e| format!("解析响应失败: {}", e))?;
+    let text = resp.text().await.map_err(|e| format!("读取响应失败: {}", e))?;
+    eprintln!("[AI] Raw response (first 500 chars): {}", &text[..text.len().min(500)]);
+
+    let json: serde_json::Value = serde_json::from_str(&text)
+        .map_err(|e| format!("解析响应失败: {} - 原始: {}", e, &text[..text.len().min(200)]))?;
 
     let content = json["choices"][0]["message"]["content"]
         .as_str()
-        .ok_or_else(|| format!("未获取到回复: {}", json))?;
+        .ok_or_else(|| format!("未获取到回复: {}", &text[..text.len().min(300)]))?;
 
     Ok(content.to_string())
 }
