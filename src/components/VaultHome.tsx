@@ -8,22 +8,22 @@ interface VaultHomeProps {
   onProjectOpened: () => void;
 }
 
-const MORANDI = [
-  'linear-gradient(145deg, #dbcec5, #c8b8ae)',
-  'linear-gradient(145deg, #c8cec2, #b4bbad)',
-  'linear-gradient(145deg, #d2ccd4, #bdb6c0)',
-  'linear-gradient(145deg, #cdd3cc, #b6bdb4)',
-  'linear-gradient(145deg, #d4ccc0, #bfb5a7)',
-  'linear-gradient(145deg, #ccc9cc, #b5b1b5)',
-  'linear-gradient(145deg, #ced0ca, #b6b8b0)',
-  'linear-gradient(145deg, #d5cdc7, #c2b8b1)',
-  'linear-gradient(145deg, #cbc8cc, #b4b0b5)',
-  'linear-gradient(145deg, #d0cec5, #bab8ae)',
+const MACARON = [
+  'linear-gradient(145deg, #f2c9ca, #e8b0b2)',
+  'linear-gradient(145deg, #c8e0d0, #aed4b8)',
+  'linear-gradient(145deg, #c8daf0, #aec4e8)',
+  'linear-gradient(145deg, #d6cce8, #c4b8dc)',
+  'linear-gradient(145deg, #f2d8c8, #e8c4b0)',
+  'linear-gradient(145deg, #f0e8c4, #e8dcb0)',
+  'linear-gradient(145deg, #c8e2f0, #aed2e8)',
+  'linear-gradient(145deg, #f0cdd8, #e8b8c6)',
+  'linear-gradient(145deg, #dce6c8, #ccd8b0)',
+  'linear-gradient(145deg, #f2d0c8, #e8bcb0)',
 ];
 
 function bgColor(name: string): string {
-  const idx = (name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 7) % MORANDI.length;
-  return MORANDI[idx];
+  const idx = (name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 7) % MACARON.length;
+  return MACARON[idx];
 }
 
 function NovelCard({ project, onOpen, onDelete }: {
@@ -106,7 +106,7 @@ function NovelCard({ project, onOpen, onDelete }: {
         <div style={{
           margin: '20px 14px 8px 30px',
           borderRadius: 3, overflow: 'hidden',
-          aspectRatio: '3/2',
+          aspectRatio: '2/3',
           boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
           background: coverUrl ? '#e0e0e0' : bgColor(name),
           display: 'flex', alignItems: 'center', justifyContent: 'center',
