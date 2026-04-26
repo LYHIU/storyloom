@@ -156,7 +156,8 @@ function NovelCard({ project, onOpen, onDelete }: {
           position: 'relative', zIndex: 2,
         }}>
           <span style={{
-            fontSize: 32, fontWeight: 400, color: 'rgba(255,255,255,0.82)',
+            fontSize: 30, fontWeight: 400, color: 'rgba(255,255,255,0.85)',
+            fontFamily: '"KaiTi", "STKaiti", "楷体", "FangSong", "仿宋", serif',
             textShadow: '0 -1px 0 rgba(255,255,255,0.3), 0 2px 3px rgba(0,0,0,0.08)',
             lineHeight: 1,
           }}>{initial}</span>
@@ -181,8 +182,9 @@ function NovelCard({ project, onOpen, onDelete }: {
             onClick={handleStartRename}
             title="点击重命名"
             style={{
-              fontSize: 14, fontWeight: 800, color: '#3d4a3d',
-              WebkitTextStroke: '0.4px rgba(255,255,255,0.5)',
+              fontSize: 15, fontWeight: 800, color: '#fff',
+              WebkitTextStroke: '2px #3d4a3d',
+              paintOrder: 'stroke fill',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
               maxWidth: '100%', cursor: 'text', letterSpacing: 2,
               textAlign: 'left',
