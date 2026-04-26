@@ -661,20 +661,29 @@ export function CharacterCards() {
                     </div>
                   </Label>
                   <Label text="重要度">
-                    <input
-                      type="range"
-                      min={1}
-                      max={5}
-                      value={activeCharacter.importance}
-                      onChange={(event) => patchCharacter(activeCharacter.id, { importance: Number(event.target.value) })}
-                    />
+                    <div style={{ display: 'flex', gap: 2 }}>
+                      {[1,2,3,4,5].map((n) => (
+                        <button key={n} onClick={() => patchCharacter(activeCharacter.id, { importance: n })}
+                          title={['', '龙套', '次要', '重要配角', '核心', '灵魂'][n]}
+                          style={{
+                            width: 26, height: 26, borderRadius: 6, cursor: 'pointer',
+                            border: activeCharacter.importance >= n ? 'none' : '1px solid rgba(107,155,107,0.18)',
+                            background: activeCharacter.importance >= n ? activeCharacter.color : 'transparent',
+                            color: activeCharacter.importance >= n ? '#fff' : 'var(--color-ink-muted)',
+                            fontFamily: 'inherit', fontSize: 11, fontWeight: 600,
+                            transition: 'all 0.12s',
+                          }}>
+                          {n}
+                        </button>
+                      ))}
+                    </div>
                   </Label>
                 </div>
               </div>
 
               <div style={{ padding: 20 }}>
                 <SectionTitle title="角色内核" action={<button onClick={addField} style={ghostButtonStyle}>+ 字段</button>} />
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))', gap: 12 }}>
                   {activeCharacter.fields.map((field) => (
                     <div key={field.id} style={fieldCardStyle}>
                       <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
