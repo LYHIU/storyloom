@@ -64,8 +64,8 @@ export function NameWorkshop() {
     const isEn = lang === 'en';
     const basePrompt = (thing: string, thingEn: string) =>
       isEn
-        ? `Generate ${count} ${style === '不限' ? '' : style} style ${thingEn}. ${extra ? 'Additional requirements: ' + extra : ''} One result per line, no numbering, no explanations, just the names.`
-        : `生成${count}个${style === '不限' ? '' : style}风格的${thing}。${extra ? '额外要求：' + extra : ''}。严格每行一个结果，不要序号前缀，不要任何解释说明，直接输出结果列表。`;
+        ? `Generate ${count} English ${style === '不限' ? '' : style} style ${thingEn}. ${extra ? 'Additional requirements: ' + extra : ''}. Output ONLY the names, one per line. No numbering, no explanations, no commentary. Just the names.`
+        : `生成${count}个${style === '不限' ? '' : style}风格的${thing}。${extra ? '额外要求：' + extra : ''}。严格每行一个名字，不要序号，不要任何解释性文字，不要掺杂英文或拼音，只输出纯中文名字。`;
 
     const prompts: Record<NameCategory, string> = {
       character: basePrompt(`角色名字，性别${isEn ? gender === '男' ? 'male' : gender === '女' ? 'female' : 'any' : gender}`, `character names, gender ${gender === '男' ? 'male' : gender === '女' ? 'female' : 'any'}`),
@@ -82,8 +82,8 @@ export function NameWorkshop() {
       const reply = await api.aiChat(vaultPath, {
         messages: [
           { role: 'system', content: isEn
-            ? 'You are a name generator. Output only names, one per line. Never include numbering, explanations, prefix punctuation, or anything other than the names themselves.'
-            : '你是一个起名工具。只输出名字列表，每行一个名字。绝对不要输出序号、解释、标点前缀、或任何非名字的内容。只输出纯名字，每行一个。' },
+            ? 'You are a name generator. Output ONLY the names, one per line. NOTHING else. No numbering, no explanations, no punctuation, no commentary. If you add any extra text, the output will be rejected.'
+            : '你是一个起名工具。只输出中文名字，每行一个。不要输出序号、解释、标点、拼音、英文、或任何非名字的内容。如果你输出任何多余的文字，结果将被丢弃。' },
           { role: 'user', content: prompts[category] },
         ],
         temperature: 0.9,
