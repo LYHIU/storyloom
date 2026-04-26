@@ -17,7 +17,21 @@ function NovelCard({ project, onOpen }: { project: ProjectMeta; onOpen: () => vo
     api.readCover(project.directory).then(setCoverUrl).catch(() => setCoverUrl(null));
   }, [project.directory]);
 
-  const hue = (name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 37) % 360;
+  // Curated elegant palette
+  const PALETTE = [
+    ['#6b7b8d', '#4a5868'], // slate blue
+    ['#9b8e7e', '#6b5e52'], // warm taupe
+    ['#7a8b7a', '#4d5e4d'], // muted sage
+    ['#a0887b', '#6c554a'], // dusty rosewood
+    ['#6e7e8e', '#445260'], // steel blue
+    ['#8e8a85', '#5e5a55'], // stone gray
+    ['#8b7e8e', '#544a58'], // muted plum
+    ['#7a8890', '#4e5a60'], // slate teal
+    ['#998878', '#5e4e3e'], // warm bronze
+    ['#7e8b8b', '#4a5555'], // muted moss
+  ];
+  const paletteIdx = (name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 7) % PALETTE.length;
+  const [bgTop, bgBottom] = PALETTE[paletteIdx];
 
   return (
     <div
@@ -47,7 +61,7 @@ function NovelCard({ project, onOpen }: { project: ProjectMeta; onOpen: () => vo
         overflow: 'hidden',
         background: coverUrl
           ? '#e8e8e8'
-          : `linear-gradient(145deg, hsl(${hue}, 45%, 70%) 0%, hsl(${hue}, 50%, 50%) 100%)`,
+          : `linear-gradient(145deg, ${bgTop} 0%, ${bgBottom} 100%)`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         position: 'relative',
       }}>
