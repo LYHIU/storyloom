@@ -21,6 +21,9 @@ pub fn run() {
             commands::file::delete_chapter,
             commands::file::rename_chapter,
             commands::vault::scan_vault,
+            commands::ai::get_ai_config,
+            commands::ai::save_ai_config,
+            commands::ai::ai_chat,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
