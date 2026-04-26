@@ -70,7 +70,7 @@ export function NameWorkshop() {
         : '';
       return isEn
         ? `Generate ${count} English ${style === '不限' ? '' : style} style ${thingEn}.${extraNote} Output ONLY the names, one per line. No numbering, no explanations, no commentary. Just the names.`
-        : `生成${count}个${style === '不限' ? '' : style}风格的${thing}。${extraNote} 严格每行一个名字，不要序号，不要任何解释性文字，不要掺杂英文或拼音，只输出纯中文汉字名字。`;
+        : `请生成恰好${count}个${style === '不限' ? '' : style}风格的${thing}。${extraNote} 必须输出正好${count}行，每行一个名字。不要序号，不要任何解释，不要掺杂英文或拼音，只输出纯中文汉字名字。如果少于${count}个则任务失败。`;
     };
 
     const prompts: Record<NameCategory, string> = {
