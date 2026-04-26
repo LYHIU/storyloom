@@ -100,14 +100,13 @@ function NovelCard({ project, onOpen, onDelete }: {
       <div style={{
         position: 'relative', zIndex: 1,
         borderRadius: '0 6px 6px 0',
-        aspectRatio: '2/3',
+        aspectRatio: '5/7',
         display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        padding: '24px 16px 20px',
+        alignItems: 'flex-start',
+        padding: '20px 16px 16px',
         boxShadow: '0 4px 14px rgba(61,74,61,0.12), 0 1px 3px rgba(0,0,0,0.06)',
         background: coverUrl ? '#888' : bgColor(name),
         overflow: 'hidden',
-        gap: 14,
       }}>
         {/* Cover image */}
         {coverUrl ? (
@@ -142,16 +141,17 @@ function NovelCard({ project, onOpen, onDelete }: {
           }}
         >{delConfirm ? '?' : '✕'}</button>
 
-        {/* Seal */}
+        {/* Seal — top-left */}
         <div style={{
-          width: 44, height: 44, borderRadius: '50%',
+          width: 52, height: 52, borderRadius: '50%',
+          marginBottom: 20, marginTop: 4,
           border: '1.2px solid rgba(255,255,255,0.35)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.12), 0 1px 2px rgba(0,0,0,0.06)',
           position: 'relative', zIndex: 2,
         }}>
           <span style={{
-            fontSize: 24, fontWeight: 400, color: 'rgba(255,255,255,0.82)',
+            fontSize: 28, fontWeight: 400, color: 'rgba(255,255,255,0.82)',
             textShadow: '0 -1px 0 rgba(255,255,255,0.3), 0 2px 3px rgba(0,0,0,0.08)',
             lineHeight: 1,
           }}>{initial}</span>
@@ -176,9 +176,10 @@ function NovelCard({ project, onOpen, onDelete }: {
             onClick={handleStartRename}
             title="点击重命名"
             style={{
-              fontSize: 13, fontWeight: 600, color: '#3d4a3d',
+              fontSize: 14, fontWeight: 600, color: '#3d4a3d',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-              maxWidth: '90%', cursor: 'text', letterSpacing: 0.3,
+              maxWidth: '100%', cursor: 'text', letterSpacing: 0.5,
+              textAlign: 'left',
               position: 'relative', zIndex: 2,
             }}
           >{name}</span>
@@ -344,7 +345,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
               }} />
               <div style={{
                 position: 'relative', zIndex: 1, borderRadius: '0 6px 6px 0',
-                aspectRatio: '2/3',
+                aspectRatio: '5/7',
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', padding: 24, gap: 8,
                 border: '2px dashed rgba(107,155,107,0.2)',
