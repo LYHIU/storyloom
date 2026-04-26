@@ -1,6 +1,7 @@
 use crate::models::ProjectMeta;
 use std::fs;
 use std::path::Path;
+use std::time::SystemTime;
 
 #[tauri::command]
 pub fn scan_vault(vault_path: String) -> Result<Vec<ProjectMeta>, String> {
@@ -24,10 +25,20 @@ pub fn scan_vault(vault_path: String) -> Result<Vec<ProjectMeta>, String> {
             .unwrap_or_default()
             .to_string_lossy()
             .to_string();
+
+        let created_at = fs::metadata(&path)
+            .ok()
+            .and_then(|m| m.modified().ok())
+            .or_else(|| m.created().ok())
+            .unwrap_or(SystemTime::UNIX_EPOCH)
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .map(|d| d.as_secs().to_string())
+            .unwrap_or_default();
+
         projects.push(ProjectMeta {
             name,
             directory: path.to_string_lossy().to_string(),
-            created_at: String::new(),
+            created_at,
         });
     }
 

@@ -231,11 +231,76 @@ function NovelCard({ project, onOpen, onDelete }: {
   );
 }
 
+type SortMode = 'name' | 'created' | 'manual';
+
+function getOrderKey(vaultPath: string) {
+  return `storyloom-order-${vaultPath}`;
+}
+
+function loadManualOrder(vaultPath: string): string[] {
+  try {
+    const raw = localStorage.getItem(getOrderKey(vaultPath));
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+function saveManualOrder(vaultPath: string, order: string[]) {
+  localStorage.setItem(getOrderKey(vaultPath), JSON.stringify(order));
+}
+
 export function VaultHome({ onProjectOpened }: VaultHomeProps) {
   const { vaultPath, vaultProjects, isLoading, error, clearError,
     setVaultPath, clearVaultPath, openProject, createProject, deleteProject, scanVault } = useProjectStore();
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
+  const [sortMode, setSortMode] = useState<SortMode>('name');
+  const [dragItem, setDragItem] = useState<string | null>(null);
+
+  // Sorted projects
+  const sortedProjects = (() => {
+    const projects = [...vaultProjects];
+    if (sortMode === 'name') {
+      return projects.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    if (sortMode === 'created') {
+      return projects.sort((a, b) => b.created_at.localeCompare(a.created_at));
+    }
+    // Manual — follow manualOrder array, append new items at end
+    const order = vaultPath ? loadManualOrder(vaultPath) : [];
+    const known = new Set(order);
+    const ordered = order
+      .map(id => projects.find(p => p.directory === id))
+      .filter(Boolean) as typeof projects;
+    const rest = projects.filter(p => !known.has(p.directory));
+    return [...ordered, ...rest];
+  })();
+
+  // Drag handlers
+  const handleDragStart = (e: React.DragEvent, dir: string) => {
+    if (sortMode !== 'manual') return;
+    setDragItem(dir);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, targetDir: string) => {
+    e.preventDefault();
+    if (!dragItem || dragItem === targetDir) return;
+    const order = sortedProjects.map(p => p.directory);
+    const fromIdx = order.indexOf(dragItem);
+    const toIdx = order.indexOf(targetDir);
+    if (fromIdx === -1 || toIdx === -1) return;
+    order.splice(fromIdx, 1);
+    order.splice(toIdx, 0, dragItem);
+    if (vaultPath) {
+      saveManualOrder(vaultPath, order);
+    }
+    setDragItem(null);
+  };
 
   const handleSwitchVault = async () => {
     const selected = await open({ directory: true, multiple: false, title: '选择书库目录' });
@@ -291,7 +356,23 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
             </>
           )}
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {/* Sort selector */}
+          <select
+            value={sortMode}
+            onChange={(e) => setSortMode(e.target.value as SortMode)}
+            style={{
+              padding: '6px 10px', fontSize: 12, cursor: 'pointer',
+              border: '1px solid rgba(107,155,107,0.2)', borderRadius: 980,
+              background: 'rgba(255,255,255,0.4)', color: 'var(--color-ink-muted)',
+              fontFamily: 'inherit', outline: 'none',
+            }}
+          >
+            <option value="name">按名称</option>
+            <option value="created">按时间</option>
+            <option value="manual">手动排序</option>
+          </select>
+
           <button onClick={() => { if (window.confirm('返回首页将清除书库路径，确定？')) clearVaultPath(); }}
             style={{ padding: '8px 16px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', border: '1px solid rgba(211,47,47,0.15)', borderRadius: 980, background: 'rgba(255,255,255,0.4)', color: 'var(--color-ink-muted)', boxShadow: '0 1px 3px rgba(61,74,61,0.04)', transition: 'all 0.2s' }}
             onMouseEnter={(e) => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'rgba(211,47,47,0.3)'; e.currentTarget.style.color = '#d32f2f'; }}
@@ -358,10 +439,20 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
             gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
             gap: 20, alignContent: 'center',
           }}>
-            {vaultProjects.map((project) => (
-              <NovelCard key={project.directory} project={project}
-                onOpen={() => handleOpen(project)}
-                onDelete={() => handleDelete(project)} />
+            {sortedProjects.map((project) => (
+              <div
+                key={project.directory}
+                draggable={sortMode === 'manual'}
+                onDragStart={(e) => handleDragStart(e, project.directory)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, project.directory)}
+                style={{ cursor: sortMode === 'manual' ? 'grab' : undefined }}
+              >
+                <NovelCard
+                  project={project}
+                  onOpen={() => handleOpen(project)}
+                  onDelete={() => handleDelete(project)} />
+              </div>
             ))}
             {/* Add-new card */}
             <div onClick={() => setShowCreate(true)} style={{ cursor: 'pointer', position: 'relative', transition: 'all 0.3s' }}
