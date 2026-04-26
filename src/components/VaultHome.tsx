@@ -257,8 +257,6 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
   const handleSortClick = (mode: SortMode) => {
     if (mode === sortMode) { setSortAsc(!sortAsc); } else { setSortMode(mode); setSortAsc(true); }
   };
-  const [dragItem, setDragItem] = useState<string | null>(null);
-
   const handleSwitchVault = async () => {
     const selected = await open({ directory: true, multiple: false, title: '选择书库目录' });
     if (selected) await setVaultPath(selected as string);
@@ -283,16 +281,13 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
     return [...ordered, ...rest];
   })();
 
-  const handleDragStart = (e: React.DragEvent, dir: string) => { if (sortMode !== 'manual') { e.preventDefault(); return; } setDragItem(dir); e.dataTransfer.setData('text/plain', dir); e.dataTransfer.effectAllowed = 'move'; const img = new Image(); img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; e.dataTransfer.setDragImage(img, 0, 0); };
-  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
-  const handleDrop = (e: React.DragEvent, targetDir: string) => {
-    e.preventDefault(); if (!dragItem || dragItem === targetDir) return;
+  const handleReorder = (fromIdx: number, direction: -1 | 1) => {
+    const toIdx = fromIdx + direction;
+    if (toIdx < 0 || toIdx >= sortedProjects.length) return;
     const order = sortedProjects.map(p => p.directory);
-    const fromIdx = order.indexOf(dragItem), toIdx = order.indexOf(targetDir);
-    if (fromIdx === -1 || toIdx === -1) return;
-    order.splice(fromIdx, 1); order.splice(toIdx, 0, dragItem);
+    order.splice(fromIdx, 1);
+    order.splice(toIdx, 0, sortedProjects[fromIdx].directory);
     if (vaultPath) saveManualOrder(vaultPath, order);
-    setDragItem(null);
   };
 
   const vaultDisplayName = vaultPath ? vaultPath.replace(/\\/g, '/').split('/').filter(Boolean).pop() || vaultPath : '';
@@ -385,19 +380,40 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
         )}
 
         {vaultProjects.length > 0 && (
-          <div
-            style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(135px, 1fr))', gap: 36, alignContent: 'center' }}
-            onDragOver={handleDragOver}
-          >
-            {sortedProjects.map((project) => (
-              <div key={project.directory}
-                draggable={sortMode === 'manual'}
-                onDragStart={(e) => handleDragStart(e, project.directory)}
-                onDragOver={handleDragOver}
-                onDragEnd={() => setDragItem(null)}
-                onDrop={(e) => handleDrop(e, project.directory)}
-                style={{ cursor: sortMode === 'manual' ? 'grab' : undefined, userSelect: sortMode === 'manual' ? 'none' : undefined }}>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 36, alignContent: 'center' }}>
+            {sortedProjects.map((project, idx) => (
+              <div key={project.directory} style={{ position: 'relative' }}>
                 <NovelCard project={project} onOpen={() => handleOpen(project)} onDelete={() => handleDelete(project)} />
+                {sortMode === 'manual' && (
+                  <div style={{
+                    position: 'absolute', right: -10, top: '50%',
+                    transform: 'translateY(-50%)',
+                    display: 'flex', flexDirection: 'column', gap: 1, zIndex: 5,
+                  }}>
+                    <button onClick={(e) => { e.stopPropagation(); handleReorder(idx, -1); }}
+                      disabled={idx === 0}
+                      style={{
+                        width: 22, height: 22, borderRadius: 4, border: 'none', cursor: idx === 0 ? 'default' : 'pointer',
+                        background: 'rgba(107,155,107,0.12)', color: idx === 0 ? 'rgba(61,74,61,0.2)' : 'var(--color-bamboo-green)',
+                        fontSize: 12, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'all 0.15s',
+                      }}
+                      onMouseEnter={(e) => { if (idx > 0) e.currentTarget.style.background = 'var(--color-bamboo-green)'; e.currentTarget.style.color = '#fff'; }}
+                      onMouseLeave={(e) => { if (idx > 0) e.currentTarget.style.background = 'rgba(107,155,107,0.12)'; e.currentTarget.style.color = 'var(--color-bamboo-green)'; }}
+                    >▲</button>
+                    <button onClick={(e) => { e.stopPropagation(); handleReorder(idx, 1); }}
+                      disabled={idx === sortedProjects.length - 1}
+                      style={{
+                        width: 22, height: 22, borderRadius: 4, border: 'none', cursor: idx === sortedProjects.length - 1 ? 'default' : 'pointer',
+                        background: 'rgba(107,155,107,0.12)', color: idx === sortedProjects.length - 1 ? 'rgba(61,74,61,0.2)' : 'var(--color-bamboo-green)',
+                        fontSize: 12, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        transition: 'all 0.15s',
+                      }}
+                      onMouseEnter={(e) => { if (idx < sortedProjects.length - 1) e.currentTarget.style.background = 'var(--color-bamboo-green)'; e.currentTarget.style.color = '#fff'; }}
+                      onMouseLeave={(e) => { if (idx < sortedProjects.length - 1) e.currentTarget.style.background = 'rgba(107,155,107,0.12)'; e.currentTarget.style.color = 'var(--color-bamboo-green)'; }}
+                    >▼</button>
+                  </div>
+                )}
               </div>
             ))}
             <div onClick={() => setShowCreate(true)} style={{ cursor: 'pointer', position: 'relative', transition: 'all 0.25s' }}
