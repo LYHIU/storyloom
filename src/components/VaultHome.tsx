@@ -120,9 +120,14 @@ function NovelCard({ project, onOpen, onDelete }: {
 
         {/* Spine */}
         <div style={{
-          position: 'absolute', left: 0, top: 0, bottom: 0, width: 6, zIndex: 3,
-          background: 'linear-gradient(90deg, rgba(0,0,0,0.2), rgba(0,0,0,0.08) 40%, transparent 80%)',
+          position: 'absolute', left: 0, top: 0, bottom: 0, width: 7, zIndex: 3,
+          background: 'linear-gradient(90deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.12) 50%, transparent 100%)',
           borderRadius: '3px 0 0 3px',
+        }} />
+        {/* Spine highlight */}
+        <div style={{
+          position: 'absolute', left: 7, top: 0, bottom: 0, width: 1, zIndex: 3,
+          background: 'rgba(255,255,255,0.15)',
         }} />
 
         {/* Delete */}
@@ -176,9 +181,10 @@ function NovelCard({ project, onOpen, onDelete }: {
             onClick={handleStartRename}
             title="点击重命名"
             style={{
-              fontSize: 14, fontWeight: 400, color: '#3d4a3d',
+              fontSize: 13, fontWeight: 400, color: '#3d4a3d',
+              fontFamily: '"STSong", "Songti SC", "Noto Serif SC", "KaiTi", "楷体", serif',
               overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-              maxWidth: '100%', cursor: 'text', letterSpacing: 1,
+              maxWidth: '100%', cursor: 'text', letterSpacing: 1.5,
               textAlign: 'left',
               position: 'relative', zIndex: 2,
             }}
@@ -325,7 +331,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
         )}
 
         {vaultProjects.length > 0 && (
-          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 36, alignContent: 'center' }}>
+          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(135px, 1fr))', gap: 36, alignContent: 'center' }}>
             {sortedProjects.map((project) => (
               <div key={project.directory}
                 draggable={sortMode === 'manual'}
