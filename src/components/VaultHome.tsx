@@ -360,12 +360,16 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
         )}
 
         {vaultProjects.length > 0 && (
-          <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(135px, 1fr))', gap: 36, alignContent: 'center' }}>
+          <div
+            style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(135px, 1fr))', gap: 36, alignContent: 'center' }}
+            onDragOver={handleDragOver}
+          >
             {sortedProjects.map((project) => (
               <div key={project.directory}
                 draggable={sortMode === 'manual'}
                 onDragStart={(e) => handleDragStart(e, project.directory)}
                 onDragOver={handleDragOver}
+                onDragEnd={() => setDragItem(null)}
                 onDrop={(e) => handleDrop(e, project.directory)}
                 style={{ cursor: sortMode === 'manual' ? 'grab' : undefined }}>
                 <NovelCard project={project} onOpen={() => handleOpen(project)} onDelete={() => handleDelete(project)} />
