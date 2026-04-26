@@ -17,107 +17,124 @@ function NovelCard({ project, onOpen }: { project: ProjectMeta; onOpen: () => vo
     api.readCover(project.directory).then(setCoverUrl).catch(() => setCoverUrl(null));
   }, [project.directory]);
 
-  // Curated elegant palette
-  const PALETTE = [
-    ['#6b7b8d', '#4a5868'], // slate blue
-    ['#9b8e7e', '#6b5e52'], // warm taupe
-    ['#7a8b7a', '#4d5e4d'], // muted sage
-    ['#a0887b', '#6c554a'], // dusty rosewood
-    ['#6e7e8e', '#445260'], // steel blue
-    ['#8e8a85', '#5e5a55'], // stone gray
-    ['#8b7e8e', '#544a58'], // muted plum
-    ['#7a8890', '#4e5a60'], // slate teal
-    ['#998878', '#5e4e3e'], // warm bronze
-    ['#7e8b8b', '#4a5555'], // muted moss
-  ];
-  const paletteIdx = (name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 7) % PALETTE.length;
-  const [bgTop, bgBottom] = PALETTE[paletteIdx];
-
   return (
     <div
       onClick={onOpen}
       style={{
-        cursor: 'pointer',
-        borderRadius: 14,
-        overflow: 'hidden',
-        background: '#fff',
-        boxShadow: '0 2px 12px rgba(61,74,61,0.07), 0 0 0 1px rgba(107,155,107,0.08)',
+        cursor: 'pointer', position: 'relative',
         transition: 'all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
       }}
       onMouseEnter={(e) => {
-        const el = e.currentTarget;
-        el.style.transform = 'translateY(-6px)';
-        el.style.boxShadow = '0 16px 40px rgba(61,74,61,0.13), 0 0 0 1px rgba(107,155,107,0.15)';
+        e.currentTarget.style.transform = 'translateY(-4px) rotate(-0.5deg)';
       }}
       onMouseLeave={(e) => {
-        const el = e.currentTarget;
-        el.style.transform = 'translateY(0)';
-        el.style.boxShadow = '0 2px 12px rgba(61,74,61,0.07), 0 0 0 1px rgba(107,155,107,0.08)';
+        e.currentTarget.style.transform = 'translateY(0) rotate(0deg)';
       }}
     >
-      {/* Cover area */}
+      {/* Stacked pages beneath */}
       <div style={{
-        aspectRatio: '16/10',
-        overflow: 'hidden',
-        background: coverUrl
-          ? '#e8e8e8'
-          : `linear-gradient(145deg, ${bgTop} 0%, ${bgBottom} 100%)`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'absolute', inset: '6px 3px -6px 3px',
+        background: '#e8e2d5',
+        borderRadius: 2,
+        boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+        transform: 'rotate(0.8deg)',
+      }} />
+      <div style={{
+        position: 'absolute', inset: '3px 1.5px -3px 1.5px',
+        background: '#eee8db',
+        borderRadius: 2,
+        boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+        transform: 'rotate(-0.5deg)',
+      }} />
+
+      {/* Main notepad sheet */}
+      <div style={{
         position: 'relative',
+        background: 'linear-gradient(180deg, #fdfaf3 0%, #f8f3e8 100%)',
+        borderRadius: '2px 8px 8px 2px',
+        boxShadow: '0 3px 12px rgba(61,74,61,0.08), 0 1px 3px rgba(0,0,0,0.06)',
+        overflow: 'hidden',
       }}>
-        {coverUrl ? (
-          <img src={coverUrl} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        ) : (
-          /* Generated cover */
-          <div style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            justifyContent: 'center', gap: 4,
-          }}>
+        {/* Ring binder hole */}
+        <div style={{
+          position: 'absolute', top: 14, left: 10, zIndex: 3,
+          width: 14, height: 14, borderRadius: '50%',
+          background: 'radial-gradient(circle at 40% 40%, #d4cfc4 0%, #b8b0a0 100%)',
+          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.06)',
+        }} />
+
+        {/* Hole reinforcement ring */}
+        <div style={{
+          position: 'absolute', top: 11, left: 7, zIndex: 2,
+          width: 20, height: 20, borderRadius: '50%',
+          border: '1px solid rgba(0,0,0,0.04)',
+          pointerEvents: 'none',
+        }} />
+
+        {/* Cover image block — like a photo pasted on */}
+        <div style={{
+          margin: '20px 14px 10px 30px',
+          borderRadius: 3,
+          overflow: 'hidden',
+          aspectRatio: '3/2',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.1)',
+          background: coverUrl ? '#e0e0e0' : bgColor(name),
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          {coverUrl ? (
+            <img src={coverUrl} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
             <div style={{
-              fontSize: 52, fontWeight: 200, color: 'rgba(255,255,255,0.9)',
-              textShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              justifyContent: 'center', gap: 2, padding: 8,
             }}>
-              {initial}
+              <span style={{ fontSize: 36, fontWeight: 200, color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                {initial}
+              </span>
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', letterSpacing: 1 }}>
+                {name.length > 8 ? name.slice(0, 8) + '…' : name}
+              </span>
             </div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', letterSpacing: 2 }}>
-              {name.length > 6 ? name.slice(0, 6) + '…' : name}
-            </div>
-          </div>
-        )}
-
-        {/* Gloss overlay */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 40%, rgba(0,0,0,0.1) 100%)',
-          pointerEvents: 'none',
-        }} />
-
-        {/* Top edge highlight */}
-        <div style={{
-          position: 'absolute', top: 0, left: 12, right: 12, height: 1,
-          background: 'rgba(255,255,255,0.3)',
-          pointerEvents: 'none',
-        }} />
-      </div>
-
-      {/* Meta */}
-      <div style={{ padding: '14px 16px 16px' }}>
-        <div style={{
-          fontSize: 14, fontWeight: 600, color: 'var(--color-ink-green)',
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          marginBottom: 3,
-        }}>
-          {name}
+          )}
         </div>
-        <div style={{
-          fontSize: 11, color: 'var(--color-ink-muted)',
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        }}>
-          {project.directory.replace(/\\/g, '/').split('/').filter(Boolean).slice(-2).join(' / ')}
+
+        {/* Ruled lines */}
+        <div style={{ padding: '0 14px 6px 30px' }}>
+          <div style={{ height: 1, background: 'rgba(107,155,107,0.1)', marginBottom: 6 }} />
+          <div style={{ height: 1, background: 'rgba(107,155,107,0.07)', marginBottom: 6 }} />
+          <div style={{ height: 1, background: 'rgba(107,155,107,0.04)', marginBottom: 8 }} />
+        </div>
+
+        {/* Handwritten-style title */}
+        <div style={{ padding: '0 14px 12px 30px' }}>
+          <div style={{
+            fontSize: 13, fontWeight: 500, color: 'var(--color-ink-green)',
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            fontFamily: '"KaiTi", "STKaiti", "楷体", serif',
+          }}>
+            {name}
+          </div>
         </div>
       </div>
     </div>
   );
+}
+
+function bgColor(name: string): string {
+  const PALETTE = [
+    'linear-gradient(145deg, #6b7b8d, #4a5868)',
+    'linear-gradient(145deg, #9b8e7e, #6b5e52)',
+    'linear-gradient(145deg, #7a8b7a, #4d5e4d)',
+    'linear-gradient(145deg, #a0887b, #6c554a)',
+    'linear-gradient(145deg, #6e7e8e, #445260)',
+    'linear-gradient(145deg, #8e8a85, #5e5a55)',
+    'linear-gradient(145deg, #8b7e8e, #544a58)',
+    'linear-gradient(145deg, #7a8890, #4e5a60)',
+    'linear-gradient(145deg, #998878, #5e4e3e)',
+    'linear-gradient(145deg, #7e8b8b, #4a5555)',
+  ];
+  const idx = (name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 7) % PALETTE.length;
+  return PALETTE[idx];
 }
 
 export function VaultHome({ onProjectOpened }: VaultHomeProps) {
@@ -351,42 +368,59 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
               <NovelCard key={project.directory} project={project} onOpen={() => handleOpen(project)} />
             ))}
 
-            {/* Add new card */}
+            {/* Add new card — same notepad style */}
             <div
               onClick={() => setShowCreate(true)}
               style={{
-                cursor: 'pointer', borderRadius: 14, overflow: 'hidden',
-                background: 'rgba(255,255,255,0.35)',
-                border: '2px dashed rgba(107,155,107,0.2)',
+                cursor: 'pointer', position: 'relative',
                 transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.65)';
-                e.currentTarget.style.borderColor = 'rgba(107,155,107,0.4)';
                 e.currentTarget.style.transform = 'translateY(-4px)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.35)';
-                e.currentTarget.style.borderColor = 'rgba(107,155,107,0.2)';
                 e.currentTarget.style.transform = 'translateY(0)';
               }}
             >
               <div style={{
-                aspectRatio: '16/10',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                position: 'absolute', inset: '6px 3px -6px 3px',
+                background: '#e8e2d5', borderRadius: 2,
+                boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
+                transform: 'rotate(0.8deg)',
+              }} />
+              <div style={{
+                position: 'absolute', inset: '3px 1.5px -3px 1.5px',
+                background: '#eee8db', borderRadius: 2,
+                boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+                transform: 'rotate(-0.5deg)',
+              }} />
+              <div style={{
+                position: 'relative',
+                background: 'linear-gradient(180deg, #fdfaf3 0%, #f8f3e8 100%)',
+                borderRadius: '2px 8px 8px 2px',
+                boxShadow: '0 3px 12px rgba(61,74,61,0.08), 0 1px 3px rgba(0,0,0,0.06)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                justifyContent: 'center', padding: '48px 20px',
+                gap: 10,
               }}>
                 <div style={{
-                  width: 48, height: 48, borderRadius: '50%',
+                  position: 'absolute', top: 14, left: 10, zIndex: 3,
+                  width: 14, height: 14, borderRadius: '50%',
+                  background: 'radial-gradient(circle at 40% 40%, #d4cfc4 0%, #b8b0a0 100%)',
+                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3), 0 0 0 1px rgba(0,0,0,0.06)',
+                }} />
+                <div style={{
+                  width: 42, height: 42, borderRadius: '50%',
                   background: 'linear-gradient(135deg, #6b9b6b, #5a8a5a)',
                   color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 26, fontWeight: 200,
+                  fontSize: 24, fontWeight: 200,
                   boxShadow: '0 2px 8px rgba(107,155,107,0.25)',
                 }}>
                   +
                 </div>
-              </div>
-              <div style={{ padding: '14px 16px 16px', textAlign: 'center' }}>
-                <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-ink-muted)' }}>新建作品</div>
+                <div style={{ fontSize: 13, color: 'var(--color-ink-muted)', fontFamily: '"KaiTi", "STKaiti", serif' }}>
+                  新建作品
+                </div>
               </div>
             </div>
           </div>
