@@ -180,6 +180,7 @@ function fieldValue(character: CharacterCard, label: string) {
 
 export function CharacterCards() {
   const project = useProjectStore((s) => s.project);
+  const vaultPath = useProjectStore((s) => s.vaultPath);
   const chapters = useProjectStore((s) => s.chapters);
   const [board, setBoard] = useState<CharacterBoard>(emptyBoard);
   const [activeId, setActiveId] = useState('');
@@ -195,11 +196,11 @@ export function CharacterCards() {
   const [aiResult, setAiResult] = useState('');
 
   const runAiAnalysis = useCallback(async (prompt: string) => {
-    if (!project) return;
+    if (!vaultPath) return;
     setAiLoading('AI 分析中...');
     setAiResult('');
     try {
-      const reply = await api.aiChat(project.directory, {
+      const reply = await api.aiChat(vaultPath, {
         messages: [
           { role: 'system', content: '你是一个小说编辑顾问，专门分析角色设定、人物关系和冲突设计。根据用户给出的角色档案，给出具体、可操作的叙事建议。用中文回答，300字以内，口语化但有深度。' },
           { role: 'user', content: prompt },
@@ -212,7 +213,7 @@ export function CharacterCards() {
       setAiResult('分析失败：' + String(e));
     }
     setAiLoading('');
-  }, [project]);
+  }, [vaultPath]);
 
   useEffect(() => {
     if (!project) return;
