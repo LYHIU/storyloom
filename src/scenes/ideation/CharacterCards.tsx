@@ -642,22 +642,34 @@ export function CharacterCards() {
                     </select>
                   </Label>
                   <Label text="颜色">
-                    <div style={{ display: 'flex', gap: 5 }}>
+                    <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
                       {COLORS.map((color) => (
                         <button
                           key={color}
                           title={color}
                           onClick={() => patchCharacter(activeCharacter.id, { color })}
                           style={{
-                            width: 22,
-                            height: 22,
-                            borderRadius: 6,
+                            width: 22, height: 22, borderRadius: 6,
                             border: activeCharacter.color === color ? '2px solid var(--color-ink-green)' : '1px solid rgba(61,74,61,0.16)',
-                            background: color,
-                            cursor: 'pointer',
+                            background: color, cursor: 'pointer',
                           }}
                         />
                       ))}
+                      {/* Custom color picker */}
+                      <label style={{
+                        width: 22, height: 22, borderRadius: 6, cursor: 'pointer',
+                        border: '1px dashed rgba(61,74,61,0.25)',
+                        background: COLORS.includes(activeCharacter.color) ? 'transparent' : activeCharacter.color,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        position: 'relative', overflow: 'hidden',
+                      }} title="自定义颜色">
+                        <span style={{ fontSize: 10, color: COLORS.includes(activeCharacter.color) ? 'var(--color-ink-muted)' : '#fff', lineHeight: 1 }}>+</span>
+                        <input type="color" value={activeCharacter.color}
+                          onChange={(e) => patchCharacter(activeCharacter.id, { color: e.target.value })}
+                          style={{
+                            position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer',
+                          }} />
+                      </label>
                     </div>
                   </Label>
                   <Label text="重要度">
