@@ -46,6 +46,8 @@ export function NameWorkshop() {
 
   const PRESETS = [
     { key: 'deepseek', label: 'DeepSeek', url: 'https://api.deepseek.com/v1', model: 'deepseek-v4-flash' },
+    { key: 'openai', label: 'OpenAI', url: 'https://api.openai.com/v1', model: 'gpt-4o-mini' },
+    { key: 'claude', label: 'Claude', url: 'https://api.anthropic.com/v1', model: 'claude-3-haiku' },
     { key: 'ollama', label: 'Ollama', url: 'http://localhost:11434', model: 'qwen3.5:4b' },
   ];
 
