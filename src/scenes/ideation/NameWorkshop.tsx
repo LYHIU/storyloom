@@ -33,11 +33,11 @@ export function NameWorkshop() {
     setResults([]);
 
     const prompts: Record<NameCategory, string> = {
-      character: `生成${count}个${style === '不限' ? '' : style}风格的角色名字，性别${gender}。${extra ? '额外要求：' + extra : ''}。每人名一行，不要序号，纯中文。`,
-      book: `生成${count}个${style === '不限' ? '' : style}风格的小说书名。${extra ? '额外要求：' + extra : ''}。每书名一行，不要序号，纯中文。`,
-      chapter: `生成${count}个${style === '不限' ? '' : style}风格的网文章节标题。${extra ? '额外要求：' + extra : ''}。每标题一行，不要序号，纯中文。`,
-      place: `生成${count}个${style === '不限' ? '' : style}风格的地名。${extra ? '额外要求：' + extra : ''}。每地名一行，不要序号，纯中文。`,
-      technique: `生成${count}个${style === '不限' ? '' : style}风格的功法/技能名称。${extra ? '额外要求：' + extra : ''}。每名称一行，不要序号，纯中文。`,
+      character: `生成${count}个${style === '不限' ? '' : style}风格的角色名字，性别${gender}。${extra ? '额外要求：' + extra : ''}。严格每行一个名字，不要序号前缀，不要任何解释说明文字，直接输出名字列表。`,
+      book: `生成${count}个${style === '不限' ? '' : style}风格的小说书名。${extra ? '额外要求：' + extra : ''}。严格每行一个书名，不要序号前缀，不要任何解释说明文字，直接输出书名列表。`,
+      chapter: `生成${count}个${style === '不限' ? '' : style}风格的网文章节标题。${extra ? '额外要求：' + extra : ''}。严格每行一个标题，不要序号前缀，不要任何解释说明文字，直接输出标题列表。`,
+      place: `生成${count}个${style === '不限' ? '' : style}风格的地名。${extra ? '额外要求：' + extra : ''}。严格每行一个地名，不要序号前缀，不要任何解释说明文字，直接输出地名列表。`,
+      technique: `生成${count}个${style === '不限' ? '' : style}风格的功法/技能名称。${extra ? '额外要求：' + extra : ''}。严格每行一个名称，不要序号前缀，不要任何解释说明文字，直接输出名称列表。`,
     };
 
     try {
@@ -46,8 +46,17 @@ export function NameWorkshop() {
         temperature: 0.9,
         max_tokens: 1024,
       });
-      const names = reply.split('\n').map((l) => l.trim()).filter((l) => l.length > 0 && !/^\d+[\.\、\s]/.test(l));
-      setResults(names.slice(0, count));
+      // Parse: split by newlines, clean each line, drop empty and lines that are purely numbers/punctuation
+      const names = reply
+        .split('\n')
+        .map((l) => l.trim())
+        .map((l) => l.replace(/^[\d]+[\.\、\)\s]+/, '').trim()) // remove leading "1. " or "1、" or "1) "
+        .filter((l) => l.length > 0 && l.length <= 20 && !/^[\(（]/.test(l)); // drop empty, too long (comments), or parenthesized
+      if (names.length === 0) {
+        setError('AI 返回了内容但未能解析出名字，请重试。原始返回: ' + reply.slice(0, 300));
+      } else {
+        setResults(names.slice(0, count));
+      }
     } catch (e) {
       setError(String(e));
     }
