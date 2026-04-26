@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProjectStore } from '../../stores/projectStore';
 import * as api from '../../lib/tauri';
 
@@ -28,8 +28,18 @@ export function NameWorkshop() {
   const [results, setResults] = useState<string[]>([]);
   const [saved, setSaved] = useState<Set<string>>(new Set());
   const [error, setError] = useState('');
+  const [aiInfo, setAiInfo] = useState('');
 
   const current = CATEGORIES.find((c) => c.key === category)!;
+
+  useEffect(() => {
+    if (vaultPath) {
+      api.getAiConfig(vaultPath).then((c) => {
+        if (c.enabled) setAiInfo(`${c.provider} / ${c.model}`);
+        else setAiInfo('AI 未开启');
+      }).catch(() => setAiInfo(''));
+    }
+  }, [vaultPath]);
 
   const generate = async () => {
     if (!vaultPath) return;
@@ -134,10 +144,15 @@ export function NameWorkshop() {
             padding: '10px 32px', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit',
             border: 'none', borderRadius: 980, color: '#fff',
             background: 'linear-gradient(135deg, var(--color-accent-yellow), #d4b040)',
-            boxShadow: '0 3px 10px rgba(232,197,96,0.3)', transition: 'all 0.2s', marginBottom: 20,
+            boxShadow: '0 3px 10px rgba(232,197,96,0.3)', transition: 'all 0.2s',
           }}>
           {loading ? '生成中...' : '✨ ' + current.btn}
         </button>
+        {aiInfo && (
+          <div style={{ fontSize: 11, color: 'var(--color-ink-muted)', opacity: 0.6, marginTop: 4, marginBottom: 16 }}>
+            当前模型：{aiInfo}
+          </div>
+        )}
 
         {/* Error */}
         {error && (
