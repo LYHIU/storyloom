@@ -33,6 +33,7 @@ function NovelCard({ project, onOpen, onDelete }: {
   const initial = name.charAt(0);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [delConfirm, setDelConfirm] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
     api.readCover(project.directory).then(setCoverUrl).catch(() => setCoverUrl(null));
@@ -70,8 +71,8 @@ function NovelCard({ project, onOpen, onDelete }: {
         cursor: 'pointer', position: 'relative',
         transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
       }}
-      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; }}
-      onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
+      onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px)'; setHovered(true); }}
+      onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; setHovered(false); }}
     >
       {/* Stacked paper layers */}
       <div style={{
@@ -134,11 +135,8 @@ function NovelCard({ project, onOpen, onDelete }: {
               border: 'none', cursor: 'pointer',
               color: '#fff', fontSize: 13,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              opacity: 0, transition: 'opacity 0.2s',
+              opacity: hovered ? 1 : 0, transition: 'opacity 0.2s',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = '0'; }}
-            onMouseOver={(e) => { e.currentTarget.style.opacity = '1'; }}
           >
             📷
           </button>
@@ -171,12 +169,9 @@ function NovelCard({ project, onOpen, onDelete }: {
               background: delConfirm ? '#d32f2f' : 'transparent',
               color: delConfirm ? '#fff' : 'var(--color-ink-muted)',
               fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              opacity: 0, transition: 'all 0.2s',
+              opacity: hovered || delConfirm ? 1 : 0, transition: 'all 0.2s',
               fontFamily: 'inherit', flexShrink: 0,
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
-            onMouseLeave={(e) => { if (!delConfirm) e.currentTarget.style.opacity = '0'; }}
-            onMouseOver={(e) => { e.currentTarget.style.opacity = '1'; }}
           >
             {delConfirm ? '?' : '✕'}
           </button>
