@@ -62,10 +62,16 @@ export function NameWorkshop() {
     setResults([]);
 
     const isEn = lang === 'en';
-    const basePrompt = (thing: string, thingEn: string) =>
-      isEn
-        ? `Generate ${count} English ${style === '不限' ? '' : style} style ${thingEn}. ${extra ? 'Additional requirements: ' + extra : ''}. Output ONLY the names, one per line. No numbering, no explanations, no commentary. Just the names.`
-        : `生成${count}个${style === '不限' ? '' : style}风格的${thing}。${extra ? '额外要求：' + extra : ''}。严格每行一个名字，不要序号，不要任何解释性文字，不要掺杂英文或拼音，只输出纯中文名字。`;
+    const basePrompt = (thing: string, thingEn: string) => {
+      const extraNote = extra
+        ? (isEn
+            ? ` Additional requirements: ${extra}.`
+            : ` 额外要求：${extra}（若要求涉及拼音首字母，请取拼音首字母满足条件的中文名字，名字本身必须是中文汉字）。`)
+        : '';
+      return isEn
+        ? `Generate ${count} English ${style === '不限' ? '' : style} style ${thingEn}.${extraNote} Output ONLY the names, one per line. No numbering, no explanations, no commentary. Just the names.`
+        : `生成${count}个${style === '不限' ? '' : style}风格的${thing}。${extraNote} 严格每行一个名字，不要序号，不要任何解释性文字，不要掺杂英文或拼音，只输出纯中文汉字名字。`;
+    };
 
     const prompts: Record<NameCategory, string> = {
       character: basePrompt(`角色名字，性别${isEn ? gender === '男' ? 'male' : gender === '女' ? 'female' : 'any' : gender}`, `character names, gender ${gender === '男' ? 'male' : gender === '女' ? 'female' : 'any'}`),
