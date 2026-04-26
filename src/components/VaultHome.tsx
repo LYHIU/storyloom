@@ -141,13 +141,21 @@ function NovelCard({ project, onOpen, onDelete }: {
           {coverUrl ? (
             <img src={coverUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
-            <span style={{
-              fontSize: 36, fontWeight: 200,
-              color: 'rgba(255,255,255,0.75)',
-              textShadow: '0 1px 3px rgba(0,0,0,0.08)',
+            /* Seal-style initial — ring + embossed character */
+            <div style={{
+              width: 56, height: 56, borderRadius: '50%',
+              border: '1.5px solid rgba(255,255,255,0.35)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: 'inset 0 1px 3px rgba(255,255,255,0.1), 0 1px 2px rgba(0,0,0,0.06)',
             }}>
-              {initial}
-            </span>
+              <span style={{
+                fontSize: 30, fontWeight: 400, color: 'rgba(255,255,255,0.82)',
+                textShadow: '0 -1px 0 rgba(255,255,255,0.3), 0 2px 3px rgba(0,0,0,0.08), 0 1px 6px rgba(0,0,0,0.05)',
+                lineHeight: 1,
+              }}>
+                {initial}
+              </span>
+            </div>
           )}
 
           {/* Upload cover button */}
