@@ -4,6 +4,7 @@ export interface ProjectMeta {
   name: string;
   directory: string;
   created_at: string;
+  cover_index?: number | null;
 }
 
 export interface Chapter {

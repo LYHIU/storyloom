@@ -3,6 +3,12 @@ use std::fs;
 use std::path::Path;
 use std::time::SystemTime;
 
+fn read_cover_index(project_dir: &Path) -> Option<usize> {
+    let config_str = fs::read_to_string(project_dir.join("project.json")).ok()?;
+    let config: crate::models::ProjectConfig = serde_json::from_str(&config_str).ok()?;
+    config.cover_index
+}
+
 #[tauri::command]
 pub fn scan_vault(vault_path: String) -> Result<Vec<ProjectMeta>, String> {
     let vault_dir = Path::new(&vault_path);
@@ -38,6 +44,7 @@ pub fn scan_vault(vault_path: String) -> Result<Vec<ProjectMeta>, String> {
             name,
             directory: path.to_string_lossy().to_string(),
             created_at,
+            cover_index: read_cover_index(&path),
         });
     }
 

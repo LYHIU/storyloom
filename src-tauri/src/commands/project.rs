@@ -3,6 +3,8 @@ use std::fs;
 use std::path::Path;
 use base64::Engine as _;
 
+const DEFAULT_COVER_COUNT: usize = 20;
+
 #[tauri::command]
 pub fn read_cover(project_path: String) -> Result<Option<String>, String> {
     for ext in &["png", "jpg", "jpeg"] {
@@ -85,6 +87,7 @@ pub fn create_project(name: String, directory: String) -> Result<ProjectMeta, St
     let config = ProjectConfig {
         volumes: vec!["未分类".into()],
         chapter_order: vec![],
+        cover_index: Some(next_cover_index(&directory)),
     };
     let config_json = serde_json::to_string_pretty(&config).map_err(|e| e.to_string())?;
     fs::write(project_dir.join("project.json"), config_json).map_err(|e| e.to_string())?;
@@ -93,6 +96,7 @@ pub fn create_project(name: String, directory: String) -> Result<ProjectMeta, St
         name,
         directory: project_dir.to_string_lossy().into(),
         created_at: String::new(),
+        cover_index: config.cover_index,
     })
 }
 
@@ -108,10 +112,12 @@ pub fn open_project(path: String) -> Result<ProjectMeta, String> {
         .unwrap_or_default()
         .to_string_lossy()
         .into();
+    let cover_index = read_project_config(project_dir).and_then(|c| c.cover_index);
     Ok(ProjectMeta {
         name,
         directory: path,
         created_at: String::new(),
+        cover_index,
     })
 }
 
@@ -151,6 +157,46 @@ pub fn list_chapters(project_path: String) -> Result<Vec<Chapter>, String> {
     }
 
     Ok(chapters)
+}
+
+fn read_project_config(project_dir: &Path) -> Option<ProjectConfig> {
+    let config_str = fs::read_to_string(project_dir.join("project.json")).ok()?;
+    serde_json::from_str(&config_str).ok()
+}
+
+fn next_cover_index(vault_path: &str) -> usize {
+    let vault_dir = Path::new(vault_path);
+    let mut used = Vec::new();
+    if let Ok(entries) = fs::read_dir(vault_dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if !path.is_dir() {
+                continue;
+            }
+            let index = read_project_config(&path)
+                .and_then(|config| config.cover_index)
+                .or_else(|| {
+                    path.file_name()
+                        .map(|name| fallback_cover_index(&name.to_string_lossy()))
+                });
+            if let Some(index) = index {
+                used.push(index % DEFAULT_COVER_COUNT);
+            }
+        }
+    }
+
+    for index in 0..DEFAULT_COVER_COUNT {
+        if !used.contains(&index) {
+            return index;
+        }
+    }
+
+    used.len() % DEFAULT_COVER_COUNT
+}
+
+fn fallback_cover_index(name: &str) -> usize {
+    let sum: usize = name.encode_utf16().map(usize::from).sum();
+    (sum * 7) % DEFAULT_COVER_COUNT
 }
 
 fn count_chinese_chars(text: &str) -> usize {

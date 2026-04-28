@@ -37,15 +37,24 @@ export function VaultSetupPage({ onVaultReady }: VaultSetupPageProps) {
     }}>
       {/* Background */}
       <div style={{
+        position: 'absolute', inset: 0, opacity: 'var(--page-bg-image-opacity, 0)', pointerEvents: 'none',
+        backgroundImage: 'var(--page-bg-image, none)',
+        backgroundSize: 'var(--page-bg-image-size, auto)',
+        backgroundRepeat: 'var(--page-bg-image-repeat, repeat)',
+        backgroundPosition: 'center',
+      }} />
+      <div style={{
         position: 'absolute', top: -120, right: -80, width: 500, height: 500, borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(107,155,107,0.06) 0%, transparent 65%)', pointerEvents: 'none',
+        opacity: 'var(--page-decor-opacity, 1)',
       }} />
       <div style={{
         position: 'absolute', bottom: 60, left: -100, width: 400, height: 400, borderRadius: '50%',
         background: 'radial-gradient(circle, rgba(232,197,96,0.05) 0%, transparent 60%)', pointerEvents: 'none',
+        opacity: 'var(--page-decor-opacity, 1)',
       }} />
       <div style={{
-        position: 'absolute', inset: 0, opacity: 0.025, pointerEvents: 'none',
+        position: 'absolute', inset: 0, opacity: 'var(--page-dot-opacity, 0.025)', pointerEvents: 'none',
         backgroundImage: `radial-gradient(circle, #6b9b6b 1px, transparent 1px)`, backgroundSize: '32px 32px',
       }} />
 

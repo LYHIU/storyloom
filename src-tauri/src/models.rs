@@ -5,6 +5,7 @@ pub struct ProjectMeta {
     pub name: String,
     pub directory: String,
     pub created_at: String,
+    pub cover_index: Option<usize>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -29,4 +30,5 @@ pub enum ChapterStatus {
 pub struct ProjectConfig {
     pub volumes: Vec<String>,
     pub chapter_order: Vec<String>,
+    pub cover_index: Option<usize>,
 }

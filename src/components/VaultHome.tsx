@@ -4,7 +4,7 @@ import { useProjectStore } from '../stores/projectStore';
 import type { ProjectMeta } from '../lib/tauri';
 import * as api from '../lib/tauri';
 import { AiSettings } from './AiSettings';
-import { THEMES, applyTheme, saveTheme, getSavedTheme } from '../lib/themes';
+import { THEMES, applyTheme, saveTheme, getSavedTheme, type Theme } from '../lib/themes';
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
   type DragEndEvent,
@@ -18,7 +18,7 @@ interface VaultHomeProps {
   onProjectOpened: () => void;
 }
 
-const MACARON = [
+const DEFAULT_COVER_PALETTE = [
   // Original 10
   'linear-gradient(160deg, #ecccd0, #d8acb2)',
   'linear-gradient(160deg, #c0d8cc, #a4c0b0)',
@@ -43,14 +43,18 @@ const MACARON = [
   'linear-gradient(160deg, #8ab0c8, #84baba)',
 ];
 
-function bgColor(name: string): string {
-  const idx = (name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 7) % MACARON.length;
-  return MACARON[idx];
+function bgColor(name: string, coverIndex: number | null | undefined, theme: Theme): string {
+  const palette = theme.coverPalette || DEFAULT_COVER_PALETTE;
+  if (typeof coverIndex === 'number') {
+    return palette[((coverIndex % palette.length) + palette.length) % palette.length];
+  }
+  const idx = (name.split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 7) % palette.length;
+  return palette[idx];
 }
 
-function SortableNovelCard({ project, onOpen, onDelete, disabled, selectMode, selected, onToggleSelect }: {
+function SortableNovelCard({ project, onOpen, onDelete, disabled, selectMode, selected, onToggleSelect, theme }: {
   project: ProjectMeta; onOpen: () => void; onDelete: () => void; disabled: boolean;
-  selectMode?: boolean; selected?: boolean; onToggleSelect?: () => void;
+  selectMode?: boolean; selected?: boolean; onToggleSelect?: () => void; theme: Theme;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: project.directory, disabled });
   const style = {
@@ -63,14 +67,14 @@ function SortableNovelCard({ project, onOpen, onDelete, disabled, selectMode, se
   return (
     <div ref={setNodeRef} style={style} {...(disabled ? {} : attributes)} {...(disabled ? {} : listeners)}>
       <NovelCard project={project} onOpen={onOpen} onDelete={onDelete}
-        selectMode={selectMode} selected={selected} onToggleSelect={onToggleSelect} />
+        selectMode={selectMode} selected={selected} onToggleSelect={onToggleSelect} theme={theme} />
     </div>
   );
 }
 
-function NovelCard({ project, onOpen, onDelete, selectMode, selected, onToggleSelect }: {
+function NovelCard({ project, onOpen, onDelete, selectMode, selected, onToggleSelect, theme }: {
   project: ProjectMeta; onOpen: () => void; onDelete: () => void;
-  selectMode?: boolean; selected?: boolean; onToggleSelect?: () => void;
+  selectMode?: boolean; selected?: boolean; onToggleSelect?: () => void; theme: Theme;
 }) {
   const name = project.name;
   const initial = name.charAt(0);
@@ -78,11 +82,16 @@ function NovelCard({ project, onOpen, onDelete, selectMode, selected, onToggleSe
   const [delConfirm, setDelConfirm] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [editingName, setEditingName] = useState(false);
+  const [nameHovered, setNameHovered] = useState(false);
   const [editValue, setEditValue] = useState(name);
 
   useEffect(() => {
     api.readCover(project.directory).then(setCoverUrl).catch(() => setCoverUrl(null));
   }, [project.directory]);
+
+  useEffect(() => {
+    if (!editingName) setEditValue(name);
+  }, [editingName, name]);
 
   const handleUploadCover = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -104,13 +113,37 @@ function NovelCard({ project, onOpen, onDelete, selectMode, selected, onToggleSe
     if (delConfirm) { onDelete(); } else { setDelConfirm(true); setTimeout(() => setDelConfirm(false), 3000); }
   };
 
-  const handleStartRename = (e: React.MouseEvent) => { e.stopPropagation(); setEditValue(name); setEditingName(true); };
-  const handleRenameKey = (e: React.KeyboardEvent) => { e.stopPropagation(); if (e.key === 'Escape') { setEditingName(false); return; } if (e.key === 'Enter') commitRename(); };
+  const handleStartRename = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (selectMode) return;
+    setEditValue(name);
+    setEditingName(true);
+  };
+  const handleRenameKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    if (e.key === 'Escape') {
+      setEditValue(name);
+      setEditingName(false);
+      return;
+    }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.currentTarget.blur();
+    }
+  };
   const commitRename = async () => {
+    const nextName = editValue.trim();
     setEditingName(false);
-    if (editValue.trim() && editValue.trim() !== name) {
-      await api.renameProject(project.directory, editValue.trim());
-      useProjectStore.getState().scanVault();
+    if (!nextName || nextName === name) {
+      setEditValue(name);
+      return;
+    }
+    try {
+      await api.renameProject(project.directory, nextName);
+      await useProjectStore.getState().scanVault();
+    } catch (error) {
+      setEditingName(true);
+      window.alert(String(error));
     }
   };
 
@@ -141,7 +174,7 @@ function NovelCard({ project, onOpen, onDelete, selectMode, selected, onToggleSe
       <div style={{
         position: 'absolute',
         left: 4, top: 0, right: -8, bottom: -9,
-        background: '#ece5d5',
+        background: 'var(--page-block-bg, #ece5d5)',
         borderRadius: '0 6px 6px 0',
         zIndex: 0,
       }}>
@@ -170,7 +203,7 @@ function NovelCard({ project, onOpen, onDelete, selectMode, selected, onToggleSe
         alignItems: 'flex-start',
         padding: '20px 16px 16px',
         boxShadow: '0 4px 14px rgba(61,74,61,0.12), 0 1px 3px rgba(0,0,0,0.06)',
-        background: coverUrl ? '#888' : bgColor(name),
+        background: coverUrl ? '#888' : bgColor(name, project.cover_index, theme),
         overflow: 'hidden',
       }}>
         {/* Cover image */}
@@ -231,32 +264,17 @@ function NovelCard({ project, onOpen, onDelete, selectMode, selected, onToggleSe
         )}
 
         {/* Title on cover */}
-        {editingName ? (
-          <input type="text" value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onKeyDown={handleRenameKey}
-            onBlur={() => commitRename()}
-            autoFocus onClick={(e) => e.stopPropagation()}
-            style={{
-              width: '80%', padding: '3px 6px', fontSize: 12,
-              border: '1px solid rgba(255,255,255,0.4)', borderRadius: 4,
-              outline: 'none', fontFamily: 'inherit', color: '#3d4a3d', background: '#fff',
-              position: 'relative', zIndex: 2,
-            }}
-          />
-        ) : (
-          <span
-            onClick={handleStartRename}
-            title="点击重命名"
-            style={{
-              fontSize: 15, fontWeight: 500, color: 'rgba(61,74,61,0.65)',
-              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-              maxWidth: '100%', cursor: 'text', letterSpacing: 1,
-              textAlign: 'left',
-              position: 'relative', zIndex: 2,
-            }}
-          >{name}</span>
-        )}
+        <span
+          onClick={handleStartRename}
+          title="点击修改书名"
+          style={{
+            fontSize: 15, fontWeight: 500, color: 'rgba(61,74,61,0.65)',
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            maxWidth: '100%', cursor: selectMode ? 'default' : 'text', letterSpacing: 1,
+            textAlign: 'left',
+            position: 'relative', zIndex: 2,
+          }}
+        >{name}</span>
 
         {/* Upload / Delete cover */}
         {coverUrl ? (
@@ -285,15 +303,52 @@ function NovelCard({ project, onOpen, onDelete, selectMode, selected, onToggleSe
 
     {/* Title below the book — visible when cover image makes on-cover title hard to read */}
     <div style={{
-      padding: '8px 4px 0', textAlign: 'center',
+      padding: '18px 4px 0', textAlign: 'center',
     }}>
-      <span style={{
-        fontSize: 12, fontWeight: 500, color: 'var(--color-ink-green)',
-        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-        display: 'block', maxWidth: '100%',
-      }}>
-        {name}
-      </span>
+      {editingName ? (
+        <input
+          type="text"
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onKeyDown={handleRenameKey}
+          onBlur={() => commitRename()}
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          onFocus={(e) => e.currentTarget.select()}
+          autoFocus
+          style={{
+            width: '100%', height: 26, boxSizing: 'border-box',
+            padding: '3px 8px', borderRadius: 7,
+            border: '1px solid color-mix(in srgb, var(--color-bamboo-green) 36%, transparent)',
+            outline: 'none', background: 'var(--color-paper-white)',
+            color: 'var(--color-ink-green)', fontSize: 12, fontWeight: 500,
+            fontFamily: 'inherit', textAlign: 'center',
+            boxShadow: '0 2px 8px color-mix(in srgb, var(--color-ink-green) 8%, transparent)',
+          }}
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={handleStartRename}
+          onPointerDown={(e) => e.stopPropagation()}
+          onMouseEnter={() => setNameHovered(true)}
+          onMouseLeave={() => setNameHovered(false)}
+          title="点击修改书名"
+          style={{
+            width: '100%', height: 26, boxSizing: 'border-box',
+            padding: '3px 8px', border: 'none', borderRadius: 7,
+            background: nameHovered && !selectMode ? 'color-mix(in srgb, var(--color-paper-white) 72%, transparent)' : 'transparent',
+            color: 'var(--color-ink-green)', fontSize: 12, fontWeight: 500,
+            fontFamily: 'inherit', cursor: selectMode ? 'default' : 'text',
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            display: 'block', maxWidth: '100%',
+            transition: 'background 0.15s, color 0.15s, box-shadow 0.15s',
+            boxShadow: nameHovered && !selectMode ? '0 1px 6px color-mix(in srgb, var(--color-ink-green) 8%, transparent)' : 'none',
+          }}
+        >
+          {name}
+        </button>
+      )}
     </div>
     </>
   );
@@ -318,6 +373,8 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
   const [selectMode, setSelectMode] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [showAiSettings, setShowAiSettings] = useState(false);
+  const [activeThemeKey, setActiveThemeKey] = useState(getSavedTheme());
+  const activeTheme = THEMES.find((theme) => theme.key === activeThemeKey) || THEMES[0];
 
   const handleSortClick = (mode: SortMode) => {
     if (mode === sortMode) { setSortAsc(!sortAsc); } else { setSortMode(mode); setSortAsc(true); }
@@ -382,7 +439,14 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', position: 'relative', background: 'var(--page-bg, linear-gradient(170deg, #faf8f4 0%, #f2efe8 30%, #e8e4db 60%, #dfdbd1 100%))' }}>
-      <div style={{ position: 'absolute', inset: 0, opacity: 0.025, pointerEvents: 'none', backgroundImage: `radial-gradient(circle, #6b9b6b 1px, transparent 1px)`, backgroundSize: '28px 28px' }} />
+      <div style={{
+        position: 'absolute', inset: 0, opacity: 'var(--page-bg-image-opacity, 0)', pointerEvents: 'none',
+        backgroundImage: 'var(--page-bg-image, none)',
+        backgroundSize: 'var(--page-bg-image-size, auto)',
+        backgroundRepeat: 'var(--page-bg-image-repeat, repeat)',
+        backgroundPosition: 'center',
+      }} />
+      <div style={{ position: 'absolute', inset: 0, opacity: 'var(--page-dot-opacity, 0.025)', pointerEvents: 'none', backgroundImage: `radial-gradient(circle, #6b9b6b 1px, transparent 1px)`, backgroundSize: '28px 28px' }} />
 
       <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 40px', flexShrink: 0, position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 18 }}>
@@ -453,7 +517,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
             AI 设置
           </button>
           <select defaultValue={getSavedTheme()}
-            onChange={(e) => { const t = THEMES.find(x => x.key === e.target.value); if (t) { applyTheme(t); saveTheme(t.key); } }}
+            onChange={(e) => { const t = THEMES.find(x => x.key === e.target.value); if (t) { applyTheme(t); saveTheme(t.key); setActiveThemeKey(t.key); } }}
             style={{ padding: '8px 12px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', border: '1px solid rgba(107,155,107,0.2)', borderRadius: 980, background: 'rgba(255,255,255,0.4)', color: 'var(--color-ink-muted)', outline: 'none' }}>
             {THEMES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
           </select>
@@ -479,9 +543,9 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
               <button onClick={() => { setShowCreate(false); setNewName(''); }} style={{ padding: '9px 22px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', border: '1px solid rgba(107,155,107,0.2)', borderRadius: 980, background: 'transparent', color: 'var(--color-ink-muted)' }}>取消</button>
               <button onClick={handleCreate} disabled={isLoading}
-                style={{ padding: '9px 28px', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', border: 'none', borderRadius: 980, color: '#fff', background: 'linear-gradient(135deg, #6b9b6b 0%, #5a8a5a 100%)', boxShadow: '0 2px 8px rgba(107,155,107,0.3)', transition: 'all 0.2s' }}
-                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 14px rgba(107,155,107,0.4)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 2px 8px rgba(107,155,107,0.3)'; e.currentTarget.style.transform = 'translateY(0)'; }}>{isLoading ? '创建中...' : '创建'}</button>
+                style={{ padding: '9px 28px', fontSize: 13, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', border: 'none', borderRadius: 980, color: '#fff', background: 'linear-gradient(135deg, var(--color-bamboo-green) 0%, var(--color-bamboo-deep) 100%)', boxShadow: '0 2px 8px color-mix(in srgb, var(--color-bamboo-green) 32%, transparent)', transition: 'all 0.2s' }}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 4px 14px color-mix(in srgb, var(--color-bamboo-green) 42%, transparent)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 2px 8px color-mix(in srgb, var(--color-bamboo-green) 32%, transparent)'; e.currentTarget.style.transform = 'translateY(0)'; }}>{isLoading ? '创建中...' : '创建'}</button>
             </div>
           </div>
         )}
@@ -492,9 +556,9 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
             <div style={{ fontSize: 16, fontWeight: 500, color: 'var(--color-ink-green)' }}>书库还是空的</div>
             <div style={{ fontSize: 14, color: 'var(--color-ink-muted)', lineHeight: 1.8, textAlign: 'center' }}>创建你的第一部作品，以字为经、以章为纬，开始织就故事。</div>
             <button onClick={() => setShowCreate(true)}
-              style={{ padding: '13px 36px', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', border: 'none', borderRadius: 980, color: '#fff', background: 'linear-gradient(135deg, #6b9b6b 0%, #5a8a5a 100%)', boxShadow: '0 4px 16px rgba(107,155,107,0.35)', transition: 'all 0.25s', marginTop: 12 }}
-              onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 8px 28px rgba(107,155,107,0.45)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(107,155,107,0.35)'; e.currentTarget.style.transform = 'translateY(0)'; }}>新 建 作 品</button>
+              style={{ padding: '13px 36px', fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', border: 'none', borderRadius: 980, color: '#fff', background: 'linear-gradient(135deg, var(--color-bamboo-green) 0%, var(--color-bamboo-deep) 100%)', boxShadow: '0 4px 16px color-mix(in srgb, var(--color-bamboo-green) 38%, transparent)', transition: 'all 0.25s', marginTop: 12 }}
+              onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 8px 28px color-mix(in srgb, var(--color-bamboo-green) 48%, transparent)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 4px 16px color-mix(in srgb, var(--color-bamboo-green) 38%, transparent)'; e.currentTarget.style.transform = 'translateY(0)'; }}>新 建 作 品</button>
           </div>
         )}
 
@@ -512,26 +576,45 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
                     selectMode={selectMode}
                     selected={selected.has(project.directory)}
                     onToggleSelect={() => toggleSelect(project.directory)}
+                    theme={activeTheme}
                   />
                 ))}
             <div onClick={() => setShowCreate(true)} style={{ cursor: 'pointer', position: 'relative', transition: 'all 0.25s' }}
               onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}>
-              <div style={{
-                position: 'absolute', left: 4, top: 0, right: -8, bottom: -9,
-                background: '#ece5d5', borderRadius: '0 6px 6px 0', zIndex: 0,
-              }} />
-              <div style={{
-                position: 'relative', zIndex: 1, borderRadius: '0 6px 6px 0',
-                aspectRatio: '3/4',
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-                justifyContent: 'center', padding: 24, gap: 8,
-                border: '2px dashed rgba(107,155,107,0.2)',
-                background: 'rgba(255,255,255,0.35)',
-                boxShadow: '0 3px 10px rgba(61,74,61,0.06)',
-              }}>
-                <div style={{ width: 38, height: 38, borderRadius: '50%', background: 'linear-gradient(135deg, #6b9b6b, #5a8a5a)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 200, boxShadow: '0 2px 8px rgba(107,155,107,0.25)' }}>+</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(61,74,61,0.4)' }}>新建作品</div>
+              <div style={{ position: 'relative', aspectRatio: '3/4' }}>
+                <div style={{
+                  position: 'absolute', left: 4, top: 0, right: -8, bottom: -9,
+                  background: 'var(--page-block-bg, #ece5d5)',
+                  borderRadius: '0 6px 6px 0', zIndex: 0,
+                }} />
+                <div style={{
+                  position: 'relative', zIndex: 1, borderRadius: '0 6px 6px 0',
+                  height: '100%',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  justifyContent: 'center', padding: 24, gap: 8,
+                  border: '2px dashed color-mix(in srgb, var(--color-bamboo-green) 34%, transparent)',
+                  background: 'color-mix(in srgb, var(--color-paper-white) 54%, transparent)',
+                  boxShadow: '0 3px 10px color-mix(in srgb, var(--color-ink-green) 10%, transparent)',
+                  boxSizing: 'border-box',
+                }}>
+                  <div style={{
+                    width: 38, height: 38, borderRadius: '50%',
+                    background: 'linear-gradient(135deg, var(--color-bamboo-green), var(--color-bamboo-deep))',
+                    color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 22, fontWeight: 200,
+                    boxShadow: '0 2px 8px color-mix(in srgb, var(--color-bamboo-green) 34%, transparent)',
+                  }}>+</div>
+                </div>
+              </div>
+              <div style={{ padding: '18px 4px 0', textAlign: 'center' }}>
+                <span style={{
+                  fontSize: 12, fontWeight: 500, color: 'var(--color-ink-green)',
+                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                  display: 'block', maxWidth: '100%',
+                }}>
+                  新建作品
+                </span>
               </div>
             </div>
           </div>
