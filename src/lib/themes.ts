@@ -138,6 +138,28 @@ export const THEMES: Theme[] = [
       '--color-accent-blue': '#7898c8',
     },
   },
+  {
+    key: 'macaron',
+    label: '马卡龙乐园',
+    pageBg: 'linear-gradient(160deg, #fef9f0 0%, #faf4e8 25%, #f8f0f0 50%, #f2f0f8 75%, #f0f4f8 100%)',
+    sceneBg: '#faf5f0',
+    cardBg: '#fff',
+    navBg: 'linear-gradient(135deg, #e8b4b8 0%, #c8d8b0 25%, #b0cce8 50%, #d0c0e0 75%, #e8ccb0 100%)',
+    colors: {
+      '--color-bamboo-white': '#fdf6f0',
+      '--color-paper-white': '#fefaf5',
+      '--color-tea-beige': '#faf3ec',
+      '--color-editor-paper': '#fefcf8',
+      '--color-bamboo-green': '#c4b8a0',
+      '--color-bamboo-deep': '#a89880',
+      '--color-ink-green': '#4a3a2a',
+      '--color-ink-muted': 'rgba(74,58,42,0.55)',
+      '--color-accent-orange': '#f0b888',
+      '--color-accent-purple': '#c8a8d8',
+      '--color-accent-yellow': '#e8d070',
+      '--color-accent-blue': '#90c8d8',
+    },
+  },
 ];
 
 const THEME_KEY = 'storyloom-theme';
