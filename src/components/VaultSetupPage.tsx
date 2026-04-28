@@ -33,7 +33,7 @@ export function VaultSetupPage({ onVaultReady }: VaultSetupPageProps) {
     <div style={{
       display: 'flex', flexDirection: 'column',
       height: '100%', overflow: 'hidden', position: 'relative',
-      background: 'linear-gradient(170deg, #faf8f4 0%, #f2efe8 30%, #e8e4db 60%, #dfdbd1 100%)',
+      background: 'var(--page-bg, linear-gradient(170deg, #faf8f4 0%, #f2efe8 30%, #e8e4db 60%, #dfdbd1 100%))',
     }}>
       {/* Background */}
       <div style={{

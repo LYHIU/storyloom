@@ -381,7 +381,7 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
   const vaultDisplayName = vaultPath ? vaultPath.replace(/\\/g, '/').split('/').filter(Boolean).pop() || vaultPath : '';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', position: 'relative', background: 'linear-gradient(170deg, #faf8f4 0%, #f2efe8 30%, #e8e4db 60%, #dfdbd1 100%)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', position: 'relative', background: 'var(--page-bg, linear-gradient(170deg, #faf8f4 0%, #f2efe8 30%, #e8e4db 60%, #dfdbd1 100%))' }}>
       <div style={{ position: 'absolute', inset: 0, opacity: 0.025, pointerEvents: 'none', backgroundImage: `radial-gradient(circle, #6b9b6b 1px, transparent 1px)`, backgroundSize: '28px 28px' }} />
 
       <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 40px', flexShrink: 0, position: 'relative', zIndex: 1 }}>

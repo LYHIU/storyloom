@@ -19,7 +19,7 @@ export function SceneTabs({ active, onChange, onBackToVault }: SceneTabsProps) {
       style={{
         display: 'flex',
         gap: 0,
-        background: 'rgba(61, 74, 61, 0.92)',
+        background: 'var(--nav-bg, rgba(61, 74, 61, 0.92))',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         padding: '0 12px',

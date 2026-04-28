@@ -17,12 +17,24 @@ export interface Theme {
   key: string;
   label: string;
   colors: ThemeColors;
+  /** Background gradient for VaultHome / VaultSetupPage */
+  pageBg: string;
+  /** Scene content bg */
+  sceneBg: string;
+  /** Card / panel bg */
+  cardBg: string;
+  /** Tab bar bg */
+  navBg: string;
 }
 
 export const THEMES: Theme[] = [
   {
     key: 'bamboo',
     label: '竹林清风',
+    pageBg: 'linear-gradient(170deg, #faf8f4 0%, #f2efe8 30%, #e8e4db 60%, #dfdbd1 100%)',
+    sceneBg: '#f6f3ed',
+    cardBg: '#fff',
+    navBg: 'rgba(61, 74, 61, 0.92)',
     colors: {
       '--color-bamboo-white': '#f2f6f0',
       '--color-paper-white': '#fafaf7',
@@ -41,73 +53,89 @@ export const THEMES: Theme[] = [
   {
     key: 'sakura',
     label: '樱吹雪',
+    pageBg: 'linear-gradient(170deg, #fef8f9 0%, #faeff3 30%, #f5e0e8 60%, #edd0db 100%)',
+    sceneBg: '#fdf0f4',
+    cardBg: '#fff',
+    navBg: 'rgba(130, 60, 80, 0.92)',
     colors: {
-      '--color-bamboo-white': '#fdf5f7',
-      '--color-paper-white': '#fefafb',
-      '--color-tea-beige': '#faf0f3',
-      '--color-editor-paper': '#fffafa',
-      '--color-bamboo-green': '#c4828e',
-      '--color-bamboo-deep': '#a86878',
-      '--color-ink-green': '#4a2c34',
-      '--color-ink-muted': 'rgba(74,44,52,0.6)',
+      '--color-bamboo-white': '#fef5f7',
+      '--color-paper-white': '#fffafb',
+      '--color-tea-beige': '#fdf0f4',
+      '--color-editor-paper': '#fffcfd',
+      '--color-bamboo-green': '#d48498',
+      '--color-bamboo-deep': '#b86078',
+      '--color-ink-green': '#5a2838',
+      '--color-ink-muted': 'rgba(90,40,56,0.6)',
       '--color-accent-orange': '#e8987a',
-      '--color-accent-purple': '#a888b8',
-      '--color-accent-yellow': '#e8c8a0',
-      '--color-accent-blue': '#88b8c8',
+      '--color-accent-purple': '#b088c0',
+      '--color-accent-yellow': '#e8c888',
+      '--color-accent-blue': '#88b8d0',
     },
   },
   {
     key: 'ocean',
     label: '深海蓝调',
+    pageBg: 'linear-gradient(170deg, #f4f8fc 0%, #e8f0f8 30%, #d8e4f0 60%, #c8d8e8 100%)',
+    sceneBg: '#edf3f8',
+    cardBg: '#fff',
+    navBg: 'rgba(30, 50, 80, 0.92)',
     colors: {
-      '--color-bamboo-white': '#f0f4f8',
-      '--color-paper-white': '#f7fafc',
-      '--color-tea-beige': '#edf2f7',
-      '--color-editor-paper': '#f8fbfe',
-      '--color-bamboo-green': '#5b8ba8',
-      '--color-bamboo-deep': '#3d6d8a',
-      '--color-ink-green': '#2a3d54',
-      '--color-ink-muted': 'rgba(42,61,84,0.6)',
-      '--color-accent-orange': '#e8a070',
-      '--color-accent-purple': '#9088b8',
+      '--color-bamboo-white': '#f2f6fa',
+      '--color-paper-white': '#f8fafc',
+      '--color-tea-beige': '#edf3f8',
+      '--color-editor-paper': '#fafcfe',
+      '--color-bamboo-green': '#5888b0',
+      '--color-bamboo-deep': '#3a6a90',
+      '--color-ink-green': '#203850',
+      '--color-ink-muted': 'rgba(32,56,80,0.6)',
+      '--color-accent-orange': '#e8a068',
+      '--color-accent-purple': '#9488b8',
       '--color-accent-yellow': '#c8c060',
-      '--color-accent-blue': '#68a8c8',
+      '--color-accent-blue': '#60a8d0',
     },
   },
   {
     key: 'amber',
     label: '暖阳琥珀',
+    pageBg: 'linear-gradient(170deg, #fdf6ee 0%, #faeee0 30%, #f5e2c8 60%, #ecd4b0 100%)',
+    sceneBg: '#faf0e4',
+    cardBg: '#fff',
+    navBg: 'rgba(90, 50, 20, 0.92)',
     colors: {
-      '--color-bamboo-white': '#fdf8f2',
-      '--color-paper-white': '#fefaf5',
-      '--color-tea-beige': '#faf2e8',
-      '--color-editor-paper': '#fffaf3',
-      '--color-bamboo-green': '#c8986a',
-      '--color-bamboo-deep': '#a87a50',
-      '--color-ink-green': '#4a3028',
-      '--color-ink-muted': 'rgba(74,48,40,0.6)',
-      '--color-accent-orange': '#e09060',
-      '--color-accent-purple': '#a88090',
-      '--color-accent-yellow': '#d4a050',
-      '--color-accent-blue': '#78a0b8',
+      '--color-bamboo-white': '#fdf4ea',
+      '--color-paper-white': '#fefaf4',
+      '--color-tea-beige': '#faf0e4',
+      '--color-editor-paper': '#fffbf6',
+      '--color-bamboo-green': '#d09860',
+      '--color-bamboo-deep': '#b07840',
+      '--color-ink-green': '#5a3818',
+      '--color-ink-muted': 'rgba(90,56,24,0.6)',
+      '--color-accent-orange': '#e08848',
+      '--color-accent-purple': '#b09088',
+      '--color-accent-yellow': '#d4a048',
+      '--color-accent-blue': '#68a0c0',
     },
   },
   {
     key: 'lavender',
     label: '暮紫烟霞',
+    pageBg: 'linear-gradient(170deg, #faf8fe 0%, #f2ecf8 30%, #e8dcf2 60%, #dcc8e8 100%)',
+    sceneBg: '#f4eef8',
+    cardBg: '#fff',
+    navBg: 'rgba(60, 30, 80, 0.92)',
     colors: {
-      '--color-bamboo-white': '#f6f4fa',
-      '--color-paper-white': '#faf8fd',
-      '--color-tea-beige': '#f2eff8',
-      '--color-editor-paper': '#f9f7fc',
-      '--color-bamboo-green': '#9088b8',
-      '--color-bamboo-deep': '#7068a0',
-      '--color-ink-green': '#383058',
-      '--color-ink-muted': 'rgba(56,48,88,0.6)',
-      '--color-accent-orange': '#e0a080',
-      '--color-accent-purple': '#b098d0',
-      '--color-accent-yellow': '#c8b068',
-      '--color-accent-blue': '#78a0c8',
+      '--color-bamboo-white': '#f8f4fc',
+      '--color-paper-white': '#fcfafe',
+      '--color-tea-beige': '#f4eef8',
+      '--color-editor-paper': '#fdfcfe',
+      '--color-bamboo-green': '#9878b8',
+      '--color-bamboo-deep': '#7858a0',
+      '--color-ink-green': '#382858',
+      '--color-ink-muted': 'rgba(56,40,88,0.6)',
+      '--color-accent-orange': '#e0a878',
+      '--color-accent-purple': '#b890d8',
+      '--color-accent-yellow': '#c8b060',
+      '--color-accent-blue': '#7898c8',
     },
   },
 ];
@@ -127,4 +155,8 @@ export function applyTheme(theme: Theme) {
   Object.entries(theme.colors).forEach(([key, value]) => {
     root.style.setProperty(key, value);
   });
+  root.style.setProperty('--page-bg', theme.pageBg);
+  root.style.setProperty('--scene-bg', theme.sceneBg);
+  root.style.setProperty('--card-bg', theme.cardBg);
+  root.style.setProperty('--nav-bg', theme.navBg);
 }
