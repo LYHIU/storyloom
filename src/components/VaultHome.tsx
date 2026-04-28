@@ -4,6 +4,7 @@ import { useProjectStore } from '../stores/projectStore';
 import type { ProjectMeta } from '../lib/tauri';
 import * as api from '../lib/tauri';
 import { AiSettings } from './AiSettings';
+import { THEMES, applyTheme, saveTheme, getSavedTheme } from '../lib/themes';
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
   type DragEndEvent,
@@ -451,6 +452,11 @@ export function VaultHome({ onProjectOpened }: VaultHomeProps) {
             onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.4)'; e.currentTarget.style.borderColor = 'rgba(184,149,176,0.3)'; }}>
             AI 设置
           </button>
+          <select defaultValue={getSavedTheme()}
+            onChange={(e) => { const t = THEMES.find(x => x.key === e.target.value); if (t) { applyTheme(t); saveTheme(t.key); } }}
+            style={{ padding: '8px 12px', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', border: '1px solid rgba(107,155,107,0.2)', borderRadius: 980, background: 'rgba(255,255,255,0.4)', color: 'var(--color-ink-muted)', outline: 'none' }}>
+            {THEMES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
+          </select>
         </div>
       </header>
 
