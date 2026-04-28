@@ -1,3 +1,5 @@
+const retroPlayfulPlaidBg = new URL('../assets/retro-playful-plaid.jpg', import.meta.url).href;
+
 export interface ThemeColors {
   '--color-bamboo-white': string;
   '--color-paper-white': string;
@@ -17,14 +19,24 @@ export interface Theme {
   key: string;
   label: string;
   colors: ThemeColors;
-  /** Background gradient for VaultHome / VaultSetupPage */
+  coverPalette?: string[];
+  /** Background for VaultHome / VaultSetupPage */
   pageBg: string;
+  /** Optional texture layer above the page background */
+  pageBgImage?: string;
+  pageBgImageOpacity?: string;
+  pageBgImageSize?: string;
+  pageBgImageRepeat?: string;
+  pageDotOpacity?: string;
+  pageDecorOpacity?: string;
   /** Scene content bg */
   sceneBg: string;
   /** Card / panel bg */
   cardBg: string;
   /** Tab bar bg */
   navBg: string;
+  /** Book page block behind covers */
+  pageBlockBg?: string;
 }
 
 export const THEMES: Theme[] = [
@@ -35,6 +47,7 @@ export const THEMES: Theme[] = [
     sceneBg: '#f6f3ed',
     cardBg: '#fff',
     navBg: 'rgba(61, 74, 61, 0.92)',
+    pageBlockBg: '#ece5d5',
     colors: {
       '--color-bamboo-white': '#f2f6f0',
       '--color-paper-white': '#fafaf7',
@@ -57,6 +70,7 @@ export const THEMES: Theme[] = [
     sceneBg: '#fdf0f4',
     cardBg: '#fff',
     navBg: 'rgba(130, 60, 80, 0.92)',
+    pageBlockBg: '#ece5d5',
     colors: {
       '--color-bamboo-white': '#fef5f7',
       '--color-paper-white': '#fffafb',
@@ -79,6 +93,7 @@ export const THEMES: Theme[] = [
     sceneBg: '#edf3f8',
     cardBg: '#fff',
     navBg: 'rgba(30, 50, 80, 0.92)',
+    pageBlockBg: '#ece5d5',
     colors: {
       '--color-bamboo-white': '#f2f6fa',
       '--color-paper-white': '#f8fafc',
@@ -101,6 +116,7 @@ export const THEMES: Theme[] = [
     sceneBg: '#faf0e4',
     cardBg: '#fff',
     navBg: 'rgba(90, 50, 20, 0.92)',
+    pageBlockBg: '#ece5d5',
     colors: {
       '--color-bamboo-white': '#fdf4ea',
       '--color-paper-white': '#fefaf4',
@@ -123,6 +139,7 @@ export const THEMES: Theme[] = [
     sceneBg: '#f4eef8',
     cardBg: '#fff',
     navBg: 'rgba(60, 30, 80, 0.92)',
+    pageBlockBg: '#ece5d5',
     colors: {
       '--color-bamboo-white': '#f8f4fc',
       '--color-paper-white': '#fcfafe',
@@ -140,32 +157,156 @@ export const THEMES: Theme[] = [
   },
   {
     key: 'macaron',
-    label: '马卡龙乐园',
-    pageBg: 'linear-gradient(160deg, #fef9f0 0%, #faf4e8 25%, #f8f0f0 50%, #f2f0f8 75%, #f0f4f8 100%)',
-    sceneBg: '#faf5f0',
-    cardBg: '#fff',
-    navBg: 'linear-gradient(135deg, #e8b4b8 0%, #c8d8b0 25%, #b0cce8 50%, #d0c0e0 75%, #e8ccb0 100%)',
+    label: '糖霜圆舞',
+    pageBg: 'linear-gradient(170deg, #fffdf8 0%, #f7e0e5 34%, #f9eaa0 68%, #dff3f1 100%)',
+    sceneBg: '#f7e0e5',
+    cardBg: '#fffdf8',
+    navBg: 'rgba(63, 74, 77, 0.92)',
+    pageBlockBg: '#f8e4d8',
     colors: {
-      '--color-bamboo-white': '#fdf6f0',
-      '--color-paper-white': '#fefaf5',
-      '--color-tea-beige': '#faf3ec',
-      '--color-editor-paper': '#fefcf8',
-      '--color-bamboo-green': '#c4b8a0',
-      '--color-bamboo-deep': '#a89880',
-      '--color-ink-green': '#4a3a2a',
-      '--color-ink-muted': 'rgba(74,58,42,0.55)',
-      '--color-accent-orange': '#f0b888',
-      '--color-accent-purple': '#c8a8d8',
-      '--color-accent-yellow': '#e8d070',
-      '--color-accent-blue': '#90c8d8',
+      '--color-bamboo-white': '#eaf7f4',
+      '--color-paper-white': '#fffdf8',
+      '--color-tea-beige': '#f7e0e5',
+      '--color-editor-paper': '#fffefa',
+      '--color-bamboo-green': '#8bceca',
+      '--color-bamboo-deep': '#6ab8b4',
+      '--color-ink-green': '#3f4a4d',
+      '--color-ink-muted': 'rgba(63,74,77,0.62)',
+      '--color-accent-orange': '#d29b51',
+      '--color-accent-purple': '#d05165',
+      '--color-accent-yellow': '#f9eaa0',
+      '--color-accent-blue': '#93c1df',
     },
+    coverPalette: [
+      'linear-gradient(160deg, #9ad4d9, #7fc4cb)',
+      'linear-gradient(160deg, #f3d3db, #e7aeba)',
+      'linear-gradient(160deg, #f9eaa0, #f2d979)',
+      'linear-gradient(160deg, #bedc9e, #93c58b)',
+      'linear-gradient(160deg, #8cca9c, #6faf86)',
+      'linear-gradient(160deg, #d29b51, #bf7c36)',
+      'linear-gradient(160deg, #d05165, #b83e53)',
+      'linear-gradient(160deg, #b5d7d7, #90c2c5)',
+      'linear-gradient(160deg, #aed0b5, #85b69a)',
+      'linear-gradient(160deg, #e7e5b1, #d8d487)',
+      'linear-gradient(160deg, #f7e0e5, #f1a7b8)',
+      'linear-gradient(160deg, #fae3a5, #f3c96f)',
+      'linear-gradient(160deg, #8bceca, #93c1df)',
+      'linear-gradient(160deg, #b5d7d7, #a0c8bf)',
+      'linear-gradient(160deg, #f3d3db, #c8a7dc)',
+      'linear-gradient(160deg, #e7e5b1, #bedc9e)',
+      'linear-gradient(160deg, #93c1df, #78a9ca)',
+      'linear-gradient(160deg, #f1a7b8, #d05165)',
+      'linear-gradient(160deg, #d29b51, #e7e5b1)',
+      'linear-gradient(160deg, #8cca9c, #9ad4d9)',
+    ],
+  },
+  {
+    key: 'baroque',
+    label: '鎏金剧场',
+    pageBg: 'linear-gradient(165deg, #f2e2c2 0%, #fcdebd 22%, #dcd1c4 46%, #cbb1a0 68%, #b59473 88%, #965036 100%)',
+    sceneBg: '#e6d5c6',
+    cardBg: '#fff1d8',
+    navBg: 'rgba(93, 60, 46, 0.94)',
+    pageBlockBg: '#d3b79e',
+    colors: {
+      '--color-bamboo-white': '#f2e2c2',
+      '--color-paper-white': '#fff1d8',
+      '--color-tea-beige': '#e6d5c6',
+      '--color-editor-paper': '#fff4df',
+      '--color-bamboo-green': '#ca9640',
+      '--color-bamboo-deep': '#5d3c2e',
+      '--color-ink-green': '#332213',
+      '--color-ink-muted': 'rgba(51,34,19,0.64)',
+      '--color-accent-orange': '#965036',
+      '--color-accent-purple': '#7f191e',
+      '--color-accent-yellow': '#ca9640',
+      '--color-accent-blue': '#29746e',
+    },
+    coverPalette: [
+      'linear-gradient(160deg, #5d3c2e, #332213)',
+      'linear-gradient(160deg, #dcd1c4, #b59473)',
+      'linear-gradient(160deg, #fcdebd, #ca9640)',
+      'linear-gradient(160deg, #965036, #5d3c2e)',
+      'linear-gradient(160deg, #f2e2c2, #cbb1a0)',
+      'linear-gradient(160deg, #b59473, #965036)',
+      'linear-gradient(160deg, #cbb1a0, #a38878)',
+      'linear-gradient(160deg, #ca9640, #5d3c2e)',
+      'linear-gradient(160deg, #7f191e, #b59473)',
+      'linear-gradient(160deg, #29746e, #ca9640)',
+      'linear-gradient(160deg, #244a62, #dcd1c4)',
+      'linear-gradient(160deg, #fcdebd, #965036)',
+      'linear-gradient(160deg, #b67485, #cbb1a0)',
+      'linear-gradient(160deg, #5b2925, #fcdebd)',
+      'linear-gradient(160deg, #a38878, #332213)',
+      'linear-gradient(160deg, #f2e2c2, #7f191e)',
+      'linear-gradient(160deg, #29746e, #dcd1c4)',
+      'linear-gradient(160deg, #ca9640, #f2e2c2)',
+      'linear-gradient(160deg, #332213, #29746e)',
+      'linear-gradient(160deg, #965036, #ca9640)',
+    ],
+  },
+  {
+    key: 'retro-playful',
+    label: '跳格童年',
+    pageBg: '#f6efda',
+    pageBgImage: retroPlayfulPlaidBg,
+    pageBgImageOpacity: '0.13',
+    pageBgImageSize: '220px auto',
+    pageBgImageRepeat: 'repeat',
+    pageDotOpacity: '0',
+    pageDecorOpacity: '0',
+    sceneBg: '#f1ead2',
+    cardBg: '#fff8e6',
+    navBg: 'rgba(117, 64, 33, 0.92)',
+    pageBlockBg: '#d8ccb0',
+    colors: {
+      '--color-bamboo-white': '#f6efda',
+      '--color-paper-white': '#fff8e6',
+      '--color-tea-beige': '#f1ead2',
+      '--color-editor-paper': '#fff9e6',
+      '--color-bamboo-green': '#bbba41',
+      '--color-bamboo-deep': '#754021',
+      '--color-ink-green': '#4f341f',
+      '--color-ink-muted': 'rgba(79,52,31,0.64)',
+      '--color-accent-orange': '#9a5626',
+      '--color-accent-purple': '#9395b2',
+      '--color-accent-yellow': '#bbba41',
+      '--color-accent-blue': '#8b8fb1',
+    },
+    coverPalette: [
+      'linear-gradient(160deg, #d9dbef, #9395b2)',
+      'linear-gradient(160deg, #cfd4ee, #74789c)',
+      'linear-gradient(160deg, #e2d6ee, #9a80ad)',
+      'linear-gradient(160deg, #bbbfdc, #565a7a)',
+      'linear-gradient(160deg, #e7d8ef, #8b6f9f)',
+      'linear-gradient(160deg, #dfe3b8, #a9ac4d)',
+      'linear-gradient(160deg, #e6e8c9, #827430)',
+      'linear-gradient(160deg, #cdd8a4, #6f7b2f)',
+      'linear-gradient(160deg, #d8e2c0, #bbba41)',
+      'linear-gradient(160deg, #c4d8c6, #728f56)',
+      'linear-gradient(160deg, #c9ddd6, #5f8d83)',
+      'linear-gradient(160deg, #c3d9df, #5e8795)',
+      'linear-gradient(160deg, #d9e2ee, #6f87ad)',
+      'linear-gradient(160deg, #b8c7d8, #754021)',
+      'linear-gradient(160deg, #9395b2, #bbba41)',
+      'linear-gradient(160deg, #8b8fb1, #6f7b2f)',
+      'linear-gradient(160deg, #d6cadf, #754021)',
+      'linear-gradient(160deg, #f6e7ad, #bbba41)',
+      'linear-gradient(160deg, #fff4cf, #9a80ad)',
+      'linear-gradient(160deg, #f0d3b8, #5e8795)',
+      'linear-gradient(160deg, #ead8c4, #754021)',
+    ],
   },
 ];
 
 const THEME_KEY = 'storyloom-theme';
 
 export function getSavedTheme(): string {
-  try { return localStorage.getItem(THEME_KEY) || 'bamboo'; } catch { return 'bamboo'; }
+  try {
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved === 'candy-garden') return 'macaron';
+    return saved || 'bamboo';
+  } catch { return 'bamboo'; }
 }
 
 export function saveTheme(key: string) {
@@ -181,4 +322,16 @@ export function applyTheme(theme: Theme) {
   root.style.setProperty('--scene-bg', theme.sceneBg);
   root.style.setProperty('--card-bg', theme.cardBg);
   root.style.setProperty('--nav-bg', theme.navBg);
+  if (theme.pageBgImage) {
+    root.style.setProperty('--page-bg-image', `url(${theme.pageBgImage})`);
+    root.style.setProperty('--page-bg-image-opacity', theme.pageBgImageOpacity || '0');
+    root.style.setProperty('--page-bg-image-size', theme.pageBgImageSize || 'auto');
+    root.style.setProperty('--page-bg-image-repeat', theme.pageBgImageRepeat || 'repeat');
+  } else {
+    root.style.setProperty('--page-bg-image', 'none');
+    root.style.setProperty('--page-bg-image-opacity', '0');
+  }
+  root.style.setProperty('--page-dot-opacity', theme.pageDotOpacity || '0.025');
+  root.style.setProperty('--page-decor-opacity', theme.pageDecorOpacity || '1');
+  root.style.setProperty('--page-block-bg', theme.pageBlockBg || '#ece5d5');
 }
