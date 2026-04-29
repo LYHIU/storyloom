@@ -164,9 +164,17 @@ fn read_project_config(project_dir: &Path) -> Option<ProjectConfig> {
     serde_json::from_str(&config_str).ok()
 }
 
+// 色系分组：每个 family 5 个索引，创建时优先从未使用的色系中选取
+const COLOR_FAMILIES: &[&[usize]] = &[
+    &[0, 1, 2, 3, 4],       // 粉/红
+    &[5, 6, 7, 8, 9],       // 黄/金
+    &[10, 11, 12, 13, 14],  // 橙/棕
+    &[15, 16, 17, 18, 19],  // 绿/蓝
+];
+
 fn next_cover_index(vault_path: &str) -> usize {
     let vault_dir = Path::new(vault_path);
-    let mut used = Vec::new();
+    let mut used_indices = Vec::new();
     if let Ok(entries) = fs::read_dir(vault_dir) {
         for entry in entries.flatten() {
             let path = entry.path();
@@ -180,18 +188,42 @@ fn next_cover_index(vault_path: &str) -> usize {
                         .map(|name| fallback_cover_index(&name.to_string_lossy()))
                 });
             if let Some(index) = index {
-                used.push(index % DEFAULT_COVER_COUNT);
+                used_indices.push(index % DEFAULT_COVER_COUNT);
             }
         }
     }
 
-    for index in 0..DEFAULT_COVER_COUNT {
-        if !used.contains(&index) {
-            return index;
+    // 统计每个色系使用量
+    let mut family_usage = [0usize; COLOR_FAMILIES.len()];
+    for &idx in &used_indices {
+        for (fam_idx, family) in COLOR_FAMILIES.iter().enumerate() {
+            if family.contains(&idx) {
+                family_usage[fam_idx] += 1;
+                break;
+            }
         }
     }
 
-    used.len() % DEFAULT_COVER_COUNT
+    // 从使用量最少的色系中选第一个未使用的索引
+    let min_usage = *family_usage.iter().min().unwrap_or(&0);
+    for (fam_idx, &count) in family_usage.iter().enumerate() {
+        if count == min_usage {
+            for &idx in COLOR_FAMILIES[fam_idx] {
+                if !used_indices.contains(&idx) {
+                    return idx;
+                }
+            }
+        }
+    }
+
+    // 兜底：所有色系都用过了，选任意未使用的
+    for i in 0..DEFAULT_COVER_COUNT {
+        if !used_indices.contains(&i) {
+            return i;
+        }
+    }
+
+    used_indices.len() % DEFAULT_COVER_COUNT
 }
 
 fn fallback_cover_index(name: &str) -> usize {

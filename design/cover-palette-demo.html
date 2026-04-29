@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>封面调色板 Demo</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #1a1a2e; color: #eee; padding: 32px; }
+  h1 { text-align: center; margin-bottom: 8px; font-size: 24px; letter-spacing: 2px; }
+  .sub { text-align: center; color: #888; margin-bottom: 40px; font-size: 13px; }
+  .section { margin-bottom: 48px; }
+  .section h2 { font-size: 18px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .section .tag { font-size: 11px; color: #aaa; font-weight: 400; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .card { border-radius: 8px 10px 10px 8px; aspect-ratio: 3/4; position: relative; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+  .card .spine { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: rgba(0,0,0,.12); z-index: 1; }
+  .card .info { position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 8px; background: rgba(0,0,0,.55); font-size: 10px; line-height: 1.4; }
+  .card .info .idx { color: #aaa; }
+  .card .info .hex { color: #ddd; }
+</style>
+</head>
+<body>
+
+<h1>书织 StoryLoom — 封面调色板</h1>
+<div class="sub">通用封面色 · 糖霜圆舞 · 氧雾珍珠 · 鎏金剧场 · 跳格童年</div>
+
+<div class="section">
+  <h2>通用封面色 <span class="tag">bamboo / sakura / ocean / amber / lavender · 20 色</span></h2>
+  <div class="grid" id="shared"></div>
+</div>
+
+<div class="section">
+  <h2>糖霜圆舞 <span class="tag">macaron · 20 色</span></h2>
+  <div class="grid" id="macaron"></div>
+</div>
+
+<div class="section">
+  <h2>氧雾珍珠 <span class="tag">oxygen-pearl · 20 色</span></h2>
+  <div class="grid" id="oxygen"></div>
+</div>
+
+<div class="section">
+  <h2>鎏金剧场 <span class="tag">baroque · 20 色</span></h2>
+  <div class="grid" id="baroque"></div>
+</div>
+
+<div class="section">
+  <h2>跳格童年 <span class="tag">retro-playful · 20 色</span></h2>
+  <div class="grid" id="retro"></div>
+</div>
+
+<script>
+const palettes = {
+  shared: [
+    'linear-gradient(160deg, #ecccd0, #d8acb2)',
+    'linear-gradient(160deg, #c0d8cc, #a4c0b0)',
+    'linear-gradient(160deg, #c0d4e8, #a4bcd8)',
+    'linear-gradient(160deg, #cec4dc, #b8accc)',
+    'linear-gradient(160deg, #ecd4c8, #d4b8a8)',
+    'linear-gradient(160deg, #e4dcc0, #d4c8a8)',
+    'linear-gradient(160deg, #c0dce8, #acccd8)',
+    'linear-gradient(160deg, #e8c8d4, #d4b0c0)',
+    'linear-gradient(160deg, #d4e0c4, #c0ceac)',
+    'linear-gradient(160deg, #ecccc8, #d4b8b0)',
+    'linear-gradient(160deg, #9fc9cc, #8abebe)',
+    'linear-gradient(160deg, #e8c8ce, #dba0aa)',
+    'linear-gradient(160deg, #efe0a0, #ead89a)',
+    'linear-gradient(160deg, #b6ce9a, #a4c0a0)',
+    'linear-gradient(160deg, #8ebe9a, #a0c0a8)',
+    'linear-gradient(160deg, #c89a60, #bc5c6a)',
+    'linear-gradient(160deg, #e8d0d6, #daa0aa)',
+    'linear-gradient(160deg, #a8c8c8, #8ab0c8)',
+    'linear-gradient(160deg, #dcd8a8, #e8d89a)',
+    'linear-gradient(160deg, #8ab0c8, #84baba)',
+  ],
+  macaron: [
+    'linear-gradient(160deg, #9ad4d9, #7fc4cb)',
+    'linear-gradient(160deg, #f3d3db, #e7aeba)',
+    'linear-gradient(160deg, #f9eaa0, #f2d979)',
+    'linear-gradient(160deg, #bedc9e, #93c58b)',
+    'linear-gradient(160deg, #8cca9c, #6faf86)',
+    'linear-gradient(160deg, #d29b51, #bf7c36)',
+    'linear-gradient(160deg, #d05165, #b83e53)',
+    'linear-gradient(160deg, #b5d7d7, #90c2c5)',
+    'linear-gradient(160deg, #aed0b5, #85b69a)',
+    'linear-gradient(160deg, #e7e5b1, #d8d487)',
+    'linear-gradient(160deg, #f7e0e5, #f1a7b8)',
+    'linear-gradient(160deg, #fae3a5, #f3c96f)',
+    'linear-gradient(160deg, #8bceca, #93c1df)',
+    'linear-gradient(160deg, #b5d7d7, #a0c8bf)',
+    'linear-gradient(160deg, #f3d3db, #c8a7dc)',
+    'linear-gradient(160deg, #e7e5b1, #bedc9e)',
+    'linear-gradient(160deg, #93c1df, #78a9ca)',
+    'linear-gradient(160deg, #f1a7b8, #d05165)',
+    'linear-gradient(160deg, #d29b51, #e7e5b1)',
+    'linear-gradient(160deg, #8cca9c, #9ad4d9)',
+  ],
+  oxygen: [
+    'linear-gradient(160deg, #f7f4ea, #75c9c8)',
+    'linear-gradient(160deg, #f4f8f6, #a9dedd)',
+    'linear-gradient(160deg, #dff3f1, #75c9c8)',
+    'linear-gradient(160deg, #75c9c8, #4fa8ad)',
+    'linear-gradient(160deg, #a9dedd, #80a1d4)',
+    'linear-gradient(160deg, #f7f4ea, #ded9e2)',
+    'linear-gradient(160deg, #ded9e2, #75c9c8)',
+    'linear-gradient(160deg, #f7f4ea, #c0b9dd)',
+    'linear-gradient(160deg, #ded9e2, #c0b9dd)',
+    'linear-gradient(160deg, #c0b9dd, #80a1d4)',
+    'linear-gradient(160deg, #f7f4ea, #80a1d4)',
+    'linear-gradient(160deg, #dff3f1, #c0b9dd)',
+    'linear-gradient(160deg, #75c9c8, #ded9e2)',
+    'linear-gradient(160deg, #4fa8ad, #2f3a56)',
+    'linear-gradient(160deg, #2f8d8b, #75c9c8)',
+    'linear-gradient(160deg, #b7e7e5, #c0b9dd)',
+    'linear-gradient(160deg, #f7f4ea, #eadc9a)',
+    'linear-gradient(160deg, #eadc9a, #75c9c8)',
+    'linear-gradient(160deg, #e7b27e, #f7f4ea)',
+    'linear-gradient(160deg, #2f3a56, #75c9c8)',
+  ],
+  baroque: [
+    'linear-gradient(160deg, #5d3c2e, #332213)',
+    'linear-gradient(160deg, #dcd1c4, #b59473)',
+    'linear-gradient(160deg, #fcdebd, #ca9640)',
+    'linear-gradient(160deg, #965036, #5d3c2e)',
+    'linear-gradient(160deg, #f2e2c2, #cbb1a0)',
+    'linear-gradient(160deg, #b59473, #965036)',
+    'linear-gradient(160deg, #cbb1a0, #a38878)',
+    'linear-gradient(160deg, #ca9640, #5d3c2e)',
+    'linear-gradient(160deg, #7f191e, #b59473)',
+    'linear-gradient(160deg, #29746e, #ca9640)',
+    'linear-gradient(160deg, #244a62, #dcd1c4)',
+    'linear-gradient(160deg, #fcdebd, #965036)',
+    'linear-gradient(160deg, #b67485, #cbb1a0)',
+    'linear-gradient(160deg, #5b2925, #fcdebd)',
+    'linear-gradient(160deg, #a38878, #332213)',
+    'linear-gradient(160deg, #f2e2c2, #7f191e)',
+    'linear-gradient(160deg, #29746e, #dcd1c4)',
+    'linear-gradient(160deg, #ca9640, #f2e2c2)',
+    'linear-gradient(160deg, #332213, #29746e)',
+    'linear-gradient(160deg, #965036, #ca9640)',
+  ],
+  retro: [
+    'linear-gradient(160deg, #f0c4cb, #e099b6)',
+    'linear-gradient(160deg, #e099b6, #c97e8b)',
+    'linear-gradient(160deg, #c97e8b, #dc5090)',
+    '#dc5090',
+    '#9395b2',
+    '#4f8fd6',
+    '#36b8b2',
+    '#8f78d8',
+    '#e86fa8',
+    '#55c7d8',
+    'linear-gradient(160deg, #eeaa3e, #ec9f38)',
+    'linear-gradient(160deg, #ec9f38, #df5b3b)',
+    'linear-gradient(160deg, #df5b3b, #bb774f)',
+    'linear-gradient(160deg, #bb774f, #c58252)',
+    'linear-gradient(160deg, #c58252, #9e726c)',
+    'linear-gradient(160deg, #9e726c, #754021)',
+    'linear-gradient(160deg, #754021, #5e3525)',
+    'linear-gradient(160deg, #5e3525, #574932)',
+    'linear-gradient(160deg, #8ebb9b, #94bfb7)',
+    'linear-gradient(160deg, #94bfb7, #2f557a)',
+  ],
+};
+
+function extractColors(gradient) {
+  const m = gradient.match(/#[0-9a-fA-F]{6}/g);
+  return m || [];
+}
+
+function render(id, list) {
+  const el = document.getElementById(id);
+  list.forEach((grad, i) => {
+    const colors = extractColors(grad);
+    const label = colors.length === 2 ? `${colors[0]} → ${colors[1]}` : colors[0] || '';
+    const c = document.createElement('div');
+    c.className = 'card';
+    c.style.background = grad;
+    c.innerHTML = `<div class="spine"></div><div class="info"><span class="idx">#${i+1}</span> <span class="hex">${label}</span></div>`;
+    el.appendChild(c);
+  });
+}
+
+render('shared', palettes.shared);
+render('macaron', palettes.macaron);
+render('oxygen', palettes.oxygen);
+render('baroque', palettes.baroque);
+render('retro', palettes.retro);
+</script>
+
+</body>
+</html>
